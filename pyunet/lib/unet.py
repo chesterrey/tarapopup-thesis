@@ -72,11 +72,8 @@ class UNet(nn.Module):
 
         self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
 
-        self.softmax = nn.Softmax(dim=3)
-
     def forward(self, x):
 
-        ## Leftside of W-Net
         skip_connections = []
 
         for down in self.downs:
@@ -87,34 +84,6 @@ class UNet(nn.Module):
         x = self.bottleneck(x)
 
         # Reverse skip_connections
-        skip_connections = skip_connections[::-1]
-
-        for idx in range(0, len(self.ups), 2):
-            x = self.ups[idx](x)
-            #print(x.shape[-1])
-            skip_connection = skip_connections[idx//2]
-
-            if x.shape != skip_connection.shape:
-                x = TF.resize(x, size=skip_connection.shape[2:])
-
-            concat_skip = torch.cat((skip_connection, x), dim=1)
-            x = self.ups[idx + 1](concat_skip)
-
-        
-        x = self.final_conv(x)
-        x = self.softmax(x)
-
-        ## Rightside of W-Net
-        skip_connections = []
-
-        for down in self.downs:
-            x = down(x)
-            skip_connections.append(x)
-            x = self.pool(x)
-
-        x = self.bottleneck(x)
-
-        # Reverse skip_connections 
         skip_connections = skip_connections[::-1]
 
         for idx in range(0, len(self.ups), 2):
