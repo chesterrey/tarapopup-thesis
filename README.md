@@ -83,7 +83,7 @@ Sample invocation:
 python -m pyunet --mode sample-pair --img-width 336 --img-height 336 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_masks" --model-file ./model.pth --device cuda --model-type wnet
 ```
 
-### Benchmarka Model `benchmark`
+### Benchmark Model `benchmark`
 
 Given an already trained model and test set, compute its performance in terms of F1, sensitivity, specificity, accuracy, dice_loss, etc...
 
@@ -95,7 +95,7 @@ Important Flags:
 Sample invocation:
 
 ```
-python -m pyunet --mode benchmark --img-width 336 --img-height 336 --device cuda --gpu-index 0 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_masks" --model-type wnet --model-file "C:\Users\acer\Documents\pyunet\model.pth" --in-channels 3 --out-channels 3
+python -m pyunet --mode benchmark --img-width 336 --img-height 336 --device cuda --gpu-index 0 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_masks" --model-type wnet --model-file "C:\Users\acer\Documents\pyunet\model.pth"
 ```
 
 ### Generate Tiff

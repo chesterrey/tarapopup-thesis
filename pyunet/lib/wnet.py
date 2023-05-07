@@ -10,7 +10,7 @@ from .double_sep_conv import DoubleSepConv
 
 class WNet(nn.Module):
     def __init__(
-        self, in_channels=3, out_channels=1, k=2
+        self, in_channels=3, out_channels=1, k=3
     ):
         super(WNet, self).__init__()
 
