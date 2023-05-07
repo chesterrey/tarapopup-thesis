@@ -2,10 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision.transforms.functional as TF
 
-# kernel_size = 3
-
 from .depthwise_seperable_conv import DepthwiseSeperableConv
-
 
 class DoubleSepConv(nn.Module):
     def __init__(self,
