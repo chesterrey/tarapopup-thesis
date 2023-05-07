@@ -14,7 +14,7 @@ from sklearn.metrics import recall_score
 import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from lib.utils import get_image, get_mask, get_predicted_img, dice_score, count_parameters, initialize_model
+from lib.utils import get_image, get_mask, get_predicted_img, dice_score, count_parameters, initialize_model, compute_model_flops
 
 class Benchmark:
     def __init__(self, params={}):
@@ -63,6 +63,11 @@ class Benchmark:
 
         num_images = len(test_images)
 
+        flops = compute_model_flops(self.model, (self.in_channels, self.img_height, self.img_width))
+
+        if self.device.startswith("cuda"):
+            torch.cuda.reset_peak_memory_stats()
+
         ave_accuracy    = 0.0
         ave_f1          = 0.0
         ave_precision   = 0.0
@@ -103,6 +108,11 @@ class Benchmark:
         elapsed_time = end_time - start_time
         elapsed_time = round(elapsed_time, 4)
 
+        if self.device.startswith("cuda"):
+            memory_usage = torch.cuda.max_memory_allocated() / (1024.0 ** 2)  # Convert bytes to MB
+        else:
+            memory_usage = None
+
         ave_accuracy    = ave_accuracy / num_images
         ave_f1          = ave_f1 / num_images
         ave_precision   = ave_precision / num_images
@@ -120,9 +130,11 @@ class Benchmark:
                 'ave_recall':       ave_recall,
                 'ave_specificity':  ave_specificity,
                 'ave_jaccard':      ave_jaccard,
-                'elapsed_time':     elapsed_time
+                'elapsed_time':     elapsed_time,
+                'FLOPS':            flops,          
+                'Memory_Usage':     memory_usage,
             }
-        ]
+    ]
 
         df_results = pd.DataFrame(scores)
         print(df_results)

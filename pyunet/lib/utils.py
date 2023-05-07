@@ -10,6 +10,9 @@ from lib.unet_attn import UNetAttn
 from lib.unet_attn_dp import UNetAttnDp
 from lib.wnet import WNet
 
+from torch.autograd import Variable
+from ptflops import get_model_complexity_info
+
 def load_model_for_inference(in_channels, out_channels, model_type, device, state_dict):
     print("Loading model for inference...")
     model = initialize_model(
@@ -95,3 +98,9 @@ def get_predicted_img(img, model, device='cpu', out_channels=4):
     result = result.transpose((1, 2, 0))
 
     return result
+
+def compute_model_flops(model, input_res):
+    flops, _ = get_model_complexity_info(
+        model, input_res, as_strings=False, print_per_layer_stat=False, verbose=False
+    )
+    return flops
