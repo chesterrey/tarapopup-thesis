@@ -62,11 +62,7 @@ Loss type (loss function) can be defined as follows:
 Sample training script:
 
 ```
-<<<<<<< HEAD
 python -m pyunet --mode train --device cuda --gpu-index 0 --img-width 336 --img-height 336 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_masks" --epochs 1 --batch-size 1 --learning-rate 0.003 --model-type wnet --loss-type CE --cont False
-=======
-python -m pyunet --mode train --device cuda --gpu-index 0 --img-width 336 --img-height 336 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_masks" --epochs 3 --batch-size 1 --learning-rate 0.003 --in-channels 3 --out-channels 3 --model-type wnet --loss-type CE --cont False
->>>>>>> 62ad25c5c04475fddcfa06d0cb7a1ac6b1e2298a
 ```
 
 ### Sample Pair `sample-pair`
