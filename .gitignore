@@ -2,9 +2,7 @@ pyunet/models
 models/*.pth
 
 # Commands
-train.bat
-samplepair.bat
-benchmark.bat
+activate.bat
 
 runs/
 venv/
