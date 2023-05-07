@@ -1,6 +1,11 @@
 pyunet/models
 models/*.pth
 
+# Commands
+train.bat
+samplepair.bat
+benchmark.bat
+
 runs/
 venv/
 data/
