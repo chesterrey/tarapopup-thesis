@@ -28,10 +28,10 @@ For `pip` users use:
 pip install -r requirements.txt
 ```
 
-Install `pytorch` manually (since currently it's not in the `pip` repositories:
+Install `pytorch` manually (since currently it's not in the `pip` repositories):
 
 ```
-pip install torch==1.11.1+cu113 torchvision==0.11.2+cu113 torchaudio==0.11.1+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
+pip install torch==1.10.1+cu113 torchvision==0.11.2+cu113 torchaudio==0.10.1+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
 ```
 
 2. Activate the environment
@@ -51,6 +51,7 @@ Values passed in the `--mode [mode]` flag
 * `unet`: UNet (original UNet) [https://arxiv.org/abs/1505.04597](https://arxiv.org/abs/1505.04597)
 * `unet_attn`: Attention UNet [https://arxiv.org/abs/1804.03999](https://arxiv.org/abs/1804.03999)
 * `unet_rd`: UNet RD (using self-attention)
+* `wnet`: WNet [https://arxiv.org/pdf/1711.08506.pdf](https://arxiv.org/pdf/1711.08506.pdf)
 
 Loss type (loss function) can be defined as follows:
 
@@ -62,7 +63,23 @@ Loss type (loss function) can be defined as follows:
 Sample training script:
 
 ```
-python -m pyunet --mode train --device cuda --gpu-index 0 --img-width 336 --img-height 336 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_masks" --epochs 1 --batch-size 1 --learning-rate 0.003 --model-type wnet --loss-type CE --cont False
+python -m pyunet \
+  --mode train \
+  --device $DEVICE \
+  --gpu-index $GPU_INDEX \
+  --img-width $IMG_WIDTH \
+  --img-height $IMG_HEIGHT \
+  --input-img-dir $INPUT_IMG_DIR \
+  --input-mask-dir $MASKED_IMG_DIR \
+  --model-file $MODEL_FILE \
+  --epochs $EPOCHS \
+  --batch-size $BATCH_SIZE \
+  --learning-rate $LEARNING_RATE \
+  --in-channels $IN_CHANNELS \
+  --out-channels $OUT_CHANNELS \
+  --model-type $MODEL_TYPE \
+  --loss-type $LOSS_TYPE \
+  --cont $CONT
 ```
 
 ### Sample Pair `sample-pair`
@@ -80,10 +97,19 @@ Important flags:
 Sample invocation:
 
 ```
-python -m pyunet --mode sample-pair --img-width 336 --img-height 336 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_masks" --model-file ./model.pth --device cuda --model-type wnet
+python -m pyunet \
+  --mode sample-pair \
+  --img-width $IMG_WIDTH \
+  --img-height $IMG_HEIGHT \
+  --input-img-dir $INPUT_IMG_DIR \
+  --input-mask-dir $MASKED_IMG_DIR \
+  --model-file $MODEL_FILE \
+  --device $DEVICE \
+  --model-type $MODEL_TYPE \
+  --sampled-index $SAMPLED_INDEX
 ```
 
-### Benchmarka Model `benchmark`
+### Benchmark Model `benchmark`
 
 Given an already trained model and test set, compute its performance in terms of F1, sensitivity, specificity, accuracy, dice_loss, etc...
 
@@ -95,7 +121,17 @@ Important Flags:
 Sample invocation:
 
 ```
-python -m pyunet --mode benchmark --img-width 336 --img-height 336 --device cuda --gpu-index 0 --input-img-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_images" --input-mask-dir "D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\val_masks" --model-type wnet --model-file "C:\Users\acer\Documents\pyunet\model.pth" --in-channels 3 --out-channels 3
+python -m pyunet --mode benchmark \
+  --img-width $IMG_WIDTH \
+  --img-height $IMG_HEIGHT \
+  --device $DEVICE \
+  --gpu-index $GPU_INDEX \
+  --input-img-dir $INPUT_IMG_DIR \
+  --input-mask-dir $INPUT_MASK_DIR \
+  --model-type $MODEL_TYPE \
+  --model-file $MODEL_FILE \
+  --in-channels $IN_CHANNELS \
+  --out-channels $OUT_CHANNELS
 ```
 
 ### Generate Tiff
@@ -111,5 +147,5 @@ python -m pyunet --mode generate-tiff --unique-values 62 113 137 155 176 194 --i
 Runs pyunet from camera feed.
 
 ```
-python -m  pyunet --mode monitor --img-height 256 --img-width 256 --display-width 800 --display-height 640 --video 0 --model-file ./model.pth --model-type wnet
+python -m  pyunet --mode monitor --img-height 256 --img-width 256 --display-width 800 --display-height 640 --video 0 --model-file ./model.pth --model-type unet_attn_dp
 ```

@@ -1,6 +1,9 @@
 pyunet/models
 models/*.pth
 
+# Commands
+activate.bat
+
 runs/
 venv/
 data/

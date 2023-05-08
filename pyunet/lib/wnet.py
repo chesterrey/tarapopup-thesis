@@ -10,7 +10,7 @@ from .double_sep_conv import DoubleSepConv
 
 class WNet(nn.Module):
     def __init__(
-        self, in_channels=3, out_channels=1, k=2
+        self, in_channels=3, out_channels=1, k=3
     ):
         super(WNet, self).__init__()
 
@@ -81,9 +81,7 @@ class WNet(nn.Module):
         self.right_downs.append(DoubleConv(128, 256))
         self.right_downs.append(DoubleConv(256, 512))
 
-        # change the shape of final_conv.weight and final_conv.bias
         self.final_conv_right = nn.Conv2d(64, 3, kernel_size=1)
-
 
     def forward(self, x):
 
