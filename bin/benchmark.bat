@@ -6,8 +6,8 @@ set DEVICE=cuda
 set GPU_INDEX=0
 set IMG_WIDTH=336
 set IMG_HEIGHT=336
-set INPUT_IMG_DIR="D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_images"
-set MASKED_IMG_DIR="D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_masks"
+set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\train_images"
+set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\train_masks"
 set MODEL_TYPE=wnet
 set MODEL_FILE="C:\Users\acer\Documents\pyunet\model.pth"
 

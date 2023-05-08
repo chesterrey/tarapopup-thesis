@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--input-img", help="Input image", type=str, required=False)
     parser.add_argument("--in-channels", help="In Channels", type=int, default=3)
     parser.add_argument("--out-channels", help="Out Channels", type=int, default=2)
-    parser.add_argument("--unique-values", help="Features", type=int, nargs='+', required=False)
+    parser.add_argument("--unique-values", help="Features", type=str, nargs='+', required=False)
     parser.add_argument("--video", help="Video index", type=str, default="0")
     parser.add_argument("--img-suffix", help="Img Suffix", type=str, default="jpg")
     parser.add_argument("--cont", help="Continue training", type=bool, default=False)

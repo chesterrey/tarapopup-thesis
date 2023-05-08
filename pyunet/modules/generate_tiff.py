@@ -10,7 +10,8 @@ class GenerateTiff:
 
         self.input_img_dir  = params.get('input_img_dir')
         self.output_img_dir = params.get('output_img_dir')
-        self.unique_values  = params.get('unique_values')
+        self.unique_values  = params.get('unique_values')[0].split(' ')
+        self.unique_values  = [int(x) for x in self.unique_values]
         self.img_suffix     = params.get('img_suffix') or 'jpg'
 
     def execute(self):
@@ -32,13 +33,14 @@ class GenerateTiff:
                 gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
                 tiff = self.convert_to_labeled_tiff(gray)
-
+ 
                 print("Saving to {}/{}...".format(self.output_img_dir, tiff_filename))
                 cv2.imwrite(os.path.join(self.output_img_dir, tiff_filename), tiff)
 
     def convert_to_labeled_tiff(self, img_grayscale):
         rows, cols = img_grayscale.shape[:2]
         tiff = np.zeros((rows, cols), dtype=np.uint8)
+        print(self.unique_values)
 
         for r in range(rows):
             for c in range(cols):
