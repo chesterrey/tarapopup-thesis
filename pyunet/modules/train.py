@@ -19,7 +19,7 @@ from sklearn.metrics import recall_score
 from torch.utils.tensorboard import SummaryWriter
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from lib.loss_functions import dice_loss, tversky_loss, FocalLoss, sym_unified_focal_loss
+from lib.loss_functions import dice_loss, tversky_loss, FocalLoss, sym_unified_focal_loss, soft_normalized_cut_loss, reconstruction_loss
 from lib.utils import get_image, get_mask, get_predicted_img, dice_score, initialize_model
 
 class Train:
@@ -68,7 +68,7 @@ class Train:
             print("CUDA Device: {}".format(torch.cuda.get_device_name(self.gpu_index)))
             self.device = "cuda:{}".format(self.gpu_index)
 
-        torch.backends.cuda.max_split_size_mb = 1024
+        torch.backends.cuda.max_split_size_mb = 2048
 
         self.model = initialize_model(
             self.in_channels,
@@ -86,22 +86,46 @@ class Train:
             )
 
             self.model.load_state_dict(state['state_dict'])
-            self.model.optimizer     = state['optimizer']
+            
+            if self.model_type == 'wnet':
+                self.model.optimizer = {
+                    'enc': state['optimizer_enc'],
+                    'dec': state['optimizer_dec']
+                }
+            else:
+                self.model.optimizer = state['optimizer']
 
-        if self.loss_type == 'CE':
-            loss_fn = nn.CrossEntropyLoss()
-        elif self.loss_type == 'DL':
-            loss_fn = dice_loss
-        elif self.loss_type == 'TL':
-            loss_fn = tversky_loss
-        elif self.loss_type == 'FL':
-            loss_fn = FocalLoss()
+        if self.model_type == 'wnet':
+            optimizer   = {
+                'enc': optim.Adam(self.model.enc.parameters(), lr=self.learning_rate),
+                'dec': optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            }
+            
+            loss_fn = {
+                # 'enc': soft_normalized_cut_loss,
+                # 'dec': reconstruction_loss
+                'enc': nn.CrossEntropyLoss(),
+                'dec': nn.CrossEntropyLoss()
+            }
+
+            print("Loss Type: {} and {}".format('soft_normalized_cut_loss', 'reconstruction_loss'))
+
         else:
-            raise ValueError("Unsupported loss_type {}".format(self.loss_type))
+            optimizer   = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            if self.loss_type == 'CE':
+                loss_fn = nn.CrossEntropyLoss()
+            elif self.loss_type == 'DL':
+                loss_fn = dice_loss
+            elif self.loss_type == 'TL':
+                loss_fn = tversky_loss
+            elif self.loss_type == 'FL':
+                loss_fn = FocalLoss()
+            else:
+                raise ValueError("Unsupported loss_type {}".format(self.loss_type))
 
-        print("Loss Type: {}".format(self.loss_type))
 
-        optimizer   = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            print("Loss Type: {}".format(self.loss_type))
+
         scaler      = torch.cuda.amp.GradScaler()
 
         train_ds = CustomDataset(
@@ -155,15 +179,23 @@ class Train:
             # Save model after every epoch
             print("Saving model to {}...".format(self.model_file))
 
-            state = {
-                'state_dict': self.model.state_dict(),
-                'optimizer': optimizer.state_dict()
-            }
+            if self.model_type == 'wnet':
+                state = {
+                    'state_dict': self.model.state_dict(),
+                    'optimizer_enc': optimizer['enc'].state_dict(),
+                    'optimizer_dec': optimizer['dec'].state_dict()
+                }
+
+            else:
+                state = {
+                    'state_dict': self.model.state_dict(),
+                    'optimizer': optimizer.state_dict()
+                }
 
             torch.save(state, self.model_file)
 
-            self.writer.flush()
 
+            self.writer.flush()
 
     def train_fn(self, loader, model, optimizer, loss_fn, scaler, test_img_dir=None, test_mask_dir=None):
         loop = tqdm(loader)
@@ -171,29 +203,54 @@ class Train:
         ave_loss = 0.0
         count = 0
 
+        
         for batch_idx, (data, targets) in enumerate(loop):
             data    = data.to(device=self.device)
             targets = targets.long().to(device=self.device)
 
             # Forward
-            predictions = model.forward(data)
 
-            loss = loss_fn(predictions, targets)
-            #loss = self.dice_loss(predictions, targets)
+            if self.model_type == 'wnet':
+                encoded = model(data, 'enc')
+                soft_n_cut_loss = loss_fn['enc'](encoded, targets)
 
-            # Backward
-            optimizer.zero_grad()
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+                optimizer['enc'].zero_grad()
+                scaler.scale(soft_n_cut_loss).backward(retain_graph=True)
+                scaler.step(optimizer['enc'])
+                scaler.update()
 
-            # update tqdm
-            loop.set_postfix(loss=loss.item())
+                decoded = model(data, 'dec')
+                reconstruction_loss = loss_fn['dec'](decoded, targets)
 
-            # Write to tensorboard
+                optimizer['dec'].zero_grad()
+                scaler.scale(reconstruction_loss).backward()
+                scaler.step(optimizer['dec'])
+                scaler.update()
 
-            ave_loss += loss.item()
-            count += 1
+                loss = soft_n_cut_loss.item() + reconstruction_loss.item()
+                loop.set_postfix(loss=loss)
+                ave_loss += loss
+                count += 1
+
+            else:
+                predictions = model.forward(data)
+
+                loss = loss_fn(predictions, targets)
+                #loss = self.dice_loss(predictions, targets)
+
+                # Backward
+                optimizer.zero_grad()
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+
+                # update tqdm
+                loop.set_postfix(loss=loss.item())
+
+                # Write to tensorboard
+
+                ave_loss += loss.item()
+                count += 1
 
         # Compute the accuracies if test_img_dir and test_mask_dir are present
         ave_accuracy    = None

@@ -8,7 +8,7 @@ set MODEL_TYPE=wnet
 set GPU_INDEX=0
 @REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\covid19ctscan\images\scan_slice00.png"
 @REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\train_images\131368cc17e44240_28955.jpg"
-set INPUT_IMG="D:\School Stuff\CSCI 199.1\chapter 3\pyunet\data\train_images\131368cc17e44240_28955.jpg"
+set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\val_images\bone (2).JPG"
 set MODEL_FILE="C:\Users\acer\Documents\pyunet\model.pth"
 
 python -m pyunet^

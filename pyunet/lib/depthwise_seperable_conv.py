@@ -34,7 +34,7 @@ class DepthwiseSeperableConv(nn.Module):
             identity = self.skip_conv(identity)
             identity = self.skip_bn(identity)
 
-        out += identity
+        out = out + identity
         out = self.relu_pointwise(out)
 
         return out

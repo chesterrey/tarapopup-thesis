@@ -6,10 +6,12 @@ set DEVICE=cuda
 set GPU_INDEX=0
 set IMG_WIDTH=336
 set IMG_HEIGHT=336
-set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\train_images"
-set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\train_masks"
+set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\val_images"
+set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\val_masks"
+@REM set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\images"
+@REM set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\masks"
 set MODEL_TYPE=wnet
-set MODEL_FILE="C:\Users\acer\Documents\pyunet\models\100epochs.pth"
+set MODEL_FILE="C:\Users\acer\Documents\pyunet\model.pth"
 
 python -m pyunet^
  --mode benchmark^

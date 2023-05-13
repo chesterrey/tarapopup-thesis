@@ -13,7 +13,7 @@ from lib.wnet import WNet
 from torch.autograd import Variable
 from ptflops import get_model_complexity_info
 
-def load_model_for_inference(in_channels, out_channels, model_type, device, state_dict):
+def load_model_for_inference(in_channels, out_channels, model_type, device, state_dict, optim_dict=None):
     print("Loading model for inference...")
     model = initialize_model(
         in_channels, 
@@ -24,8 +24,17 @@ def load_model_for_inference(in_channels, out_channels, model_type, device, stat
 
     print("Loading state dict...")
     model.load_state_dict(state_dict)
+    
+    if optim_dict is not None:
+        if model_type == 'wnet':
+            model.optimizer_enc = optim_dict['optimizer_enc']
+            model.optimizer_dec = optim_dict['optimizer_dec']
+        else:
+            model.optimizer = optim_dict['optimizer']
+
     print("Done.")
     return model
+
 
 def initialize_model(in_channels, out_channels, model_type, device):
     model = None
