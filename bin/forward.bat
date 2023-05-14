@@ -11,9 +11,9 @@ set OUT_CHANNELS=3
 set CLASSES=2
 @REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\covid19ctscan\images\scan_slice00.png"
 @REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\train_images\131368cc17e44240_28955.jpg"
-set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\images\gt2000000-1-400-001.png"
-@REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\val_images\bone (2).JPG"
-set MODEL_FILE="C:\Users\acer\Documents\pyunet\model.pth"
+@REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\images\gt2000000-1-400-001.png"
+set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\val_images\bone (1).JPG"
+set MODEL_FILE="C:\Users\acer\Documents\pyunet\models\wnet\wnet_100.pth"
 
 python -m pyunet^
   --mode forward^

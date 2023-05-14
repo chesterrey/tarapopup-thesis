@@ -73,17 +73,24 @@ class Benchmark:
         ave_recall      = 0.0
         ave_specificity = 0.0
         ave_jaccard     = 0.0
+        ave_prediction  = 0.0
 
         start_time = time.time()
 
         for i in range(num_images):
+
+
             image_file  = test_images[i]
             mask_file   = test_masks[i]
 
             img  = get_image(image_file, dim)
             mask = get_mask(mask_file, dim)
 
+            prediction_start = time.time()
+
             prediction = get_predicted_img(img, self.model, device=self.device)
+
+            prediction_end = time.time()
 
             mask_vectorized = mask.ravel().astype(int)
             prediction_vectorized = prediction.ravel().astype(int)
@@ -92,8 +99,13 @@ class Benchmark:
             f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
             precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
             recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
-            specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro', zero_division=1)
-            jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro')
+
+            if self.model_type == 'wnet':
+                specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.classes), average='macro', zero_division=1)
+                jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.classes), average='macro')
+            else:
+                specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro', zero_division=1)
+                jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro')
 
             ave_accuracy += accuracy
             ave_f1 += f1
@@ -101,6 +113,7 @@ class Benchmark:
             ave_recall += recall
             ave_specificity += specificity
             ave_jaccard += jaccard
+            ave_prediction += (prediction_end - prediction_start)
 
         end_time = time.time()
 
@@ -113,6 +126,7 @@ class Benchmark:
         ave_recall      = ave_recall / num_images
         ave_specificity = ave_specificity / num_images
         ave_jaccard     = ave_jaccard / num_images
+        ave_prediction  = ave_prediction / num_images
 
         scores = [
             {
@@ -122,10 +136,11 @@ class Benchmark:
                 'ave_f1':           ave_f1,
                 'ave_precision':    ave_precision,
                 'ave_recall':       ave_recall,
-                'ave_specificity':  ave_specificity,
+                # 'ave_specificity':  ave_specificity,
                 'ave_jaccard':      ave_jaccard,
                 'elapsed_time':     elapsed_time,
-                'FLOPS':            flops
+                'FLOPS':            flops,
+                'ave_prediction':   ave_prediction
             }
     ]
 

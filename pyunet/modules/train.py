@@ -19,7 +19,8 @@ from sklearn.metrics import recall_score
 from torch.utils.tensorboard import SummaryWriter
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from lib.loss_functions import dice_loss, tversky_loss, FocalLoss, sym_unified_focal_loss, soft_normalized_cut_loss, reconstruction_loss
+from lib.loss_functions import dice_loss, tversky_loss, FocalLoss, sym_unified_focal_loss
+from lib.lovasz_losses import lovasz_softmax
 from lib.utils import get_image, get_mask, get_predicted_img, dice_score, initialize_model
 
 class Train:
@@ -79,48 +80,28 @@ class Train:
             self.classes
         )
 
-        print(self.model)
-
         if self.cont and os.path.exists(self.model_file):
             state = torch.load(
                 self.model_file, 
                 map_location=self.device
             )
-
+            print("Loading model from {}...".format(self.model_file))
             self.model.load_state_dict(state['state_dict'])
-            
-            if self.model_type == 'wnet':
-                self.model.optimizer = {
-                    'enc': state['optimizer_enc'],
-                    'dec': state['optimizer_dec']
-                }
-            else:
-                self.model.optimizer = state['optimizer']
+            self.model.optimizer = state['optimizer']
 
-        if self.model_type == 'wnet':    
-            loss_fn = {
-                'enc': soft_normalized_cut_loss,
-                # 'dec': reconstruction_loss
-                # 'enc': nn.CrossEntropyLoss(),
-                'dec': nn.CrossEntropyLoss()
-            }
-
-            print("Loss Type: {} and {}".format('soft_normalized_cut_loss', 'reconstruction_loss'))
-
+        if self.loss_type == 'CE':
+            loss_fn = nn.CrossEntropyLoss()
+        elif self.loss_type == 'DL':
+            loss_fn = dice_loss
+        elif self.loss_type == 'TL':
+            loss_fn = tversky_loss
+        elif self.loss_type == 'FL':
+            loss_fn = FocalLoss()
         else:
-            if self.loss_type == 'CE':
-                loss_fn = nn.CrossEntropyLoss()
-            elif self.loss_type == 'DL':
-                loss_fn = dice_loss
-            elif self.loss_type == 'TL':
-                loss_fn = tversky_loss
-            elif self.loss_type == 'FL':
-                loss_fn = FocalLoss()
-            else:
-                raise ValueError("Unsupported loss_type {}".format(self.loss_type))
+            raise ValueError("Unsupported loss_type {}".format(self.loss_type))
 
 
-            print("Loss Type: {}".format(self.loss_type))
+        print("Loss Type: {}".format(self.loss_type))
 
         optimizer   = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         scaler      = torch.cuda.amp.GradScaler()
@@ -198,28 +179,27 @@ class Train:
             targets = targets.long().to(device=self.device)
 
             # Forward
-
             if self.model_type == 'wnet':
-                encoded = model(data, 'enc')
-                soft_n_cut_loss = loss_fn['enc'](encoded, targets, self.classes)
+
+                encoded = model.forward(data, mode='enc')
+
+                lovasz_loss = lovasz_softmax(encoded, targets, per_image=True)
 
                 optimizer.zero_grad()
-                scaler.scale(soft_n_cut_loss).backward(retain_graph=True)
+                scaler.scale(lovasz_loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+                
+                decoded = model.forward(data, mode='dec')
+
+                ce_loss = loss_fn(decoded, targets)
+                optimizer.zero_grad()
+                scaler.scale(ce_loss).backward()
                 scaler.step(optimizer)
                 scaler.update()
 
-                decoded = model(data, 'dec')
-                reconstruction_loss = loss_fn['dec'](decoded, targets)
+                loss = lovasz_loss + ce_loss
 
-                optimizer.zero_grad()
-                scaler.scale(reconstruction_loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-
-                loss = soft_n_cut_loss.item() + reconstruction_loss.item()
-                loop.set_postfix(loss=loss)
-                ave_loss += loss
-                count += 1
 
             else:
                 predictions = model.forward(data)
@@ -233,13 +213,13 @@ class Train:
                 scaler.step(optimizer)
                 scaler.update()
 
-                # update tqdm
-                loop.set_postfix(loss=loss.item())
+            # update tqdm
+            loop.set_postfix(loss=loss.item())
 
-                # Write to tensorboard
+            # Write to tensorboard
 
-                ave_loss += loss.item()
-                count += 1
+            ave_loss += loss.item()
+            count += 1
 
         # Compute the accuracies if test_img_dir and test_mask_dir are present
         ave_accuracy    = None

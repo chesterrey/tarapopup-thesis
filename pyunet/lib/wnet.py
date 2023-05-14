@@ -219,3 +219,5 @@ class WNet(nn.Module):
         
         if mode == 'dec':
             return decoded
+        
+        return encoded, decoded

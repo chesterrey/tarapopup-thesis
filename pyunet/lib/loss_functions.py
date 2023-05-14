@@ -121,29 +121,3 @@ def tversky_loss(p, y, alpha=1, beta=1, eps=1e-7):
     tversky_loss = (num / (denom + eps)).mean()
 
     return (1 - tversky_loss)
-
-def soft_normalized_cut_loss(y_pred, y_true, K=3):
-    """
-    Compute a simplified Soft Normalized Cut Loss.
-    Assumes each pixel is a separate segment (no affinity measures).
-
-    y_pred: Predicted probabilities, a PyTorch Tensor of shape [B, K, H, W].
-    y_true: Ground truth labels, a PyTorch Tensor of shape [B, H, W].
-    K: Number of classes.
-    """
-    y_true = F.one_hot(y_true, num_classes=K).permute(0, 3, 1, 2).float()
-    
-    assoc_ak_v = torch.sum(y_pred, dim=[2, 3])  # Sum over height and width.
-    assoc_ak_ak = torch.sum(y_pred * y_true, dim=[2, 3])
-    
-    soft_ncut = K - torch.sum(assoc_ak_ak / (assoc_ak_v + 1e-8))  # Small constant for numerical stability.
-    return soft_ncut.mean()
-
-def reconstruction_loss(y_pred, y_true):
-    """
-    Compute the reconstruction loss, i.e., the mean squared error between the prediction and the target.
-
-    y_pred: Predicted images, a PyTorch Tensor of shape [B, C, H, W].
-    y_true: Ground truth images, a PyTorch Tensor of shape [B, C, H, W].
-    """
-    return torch.mean((y_pred - y_true) ** 2)
