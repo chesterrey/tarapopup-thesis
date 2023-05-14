@@ -15,7 +15,7 @@ set BATCH_SIZE=1
 set EPOCHS=3
 set LEARNING_RATE=0.003
 set IN_CHANNELS=3
-set OUT_CHANNELS=2
+set OUT_CHANNELS=3
 set LOSS_TYPE=CE
 set MODEL_TYPE=wnet
 set CONT=False
@@ -33,4 +33,6 @@ set CONT=False
   --learning-rate %LEARNING_RATE%^
   --model-type %MODEL_TYPE%^
   --loss-type %LOSS_TYPE%^
+  --in-channels %IN_CHANNELS%^
+  --out-channels %OUT_CHANNELS%^
   --cont %CONT%

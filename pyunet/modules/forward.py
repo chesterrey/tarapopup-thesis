@@ -43,7 +43,7 @@ class Forward:
 
         # Load image
         img = cv2.imread(self.input_img)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         rows, cols, _ = img.shape
         original_dim = (cols, rows)
 
