@@ -54,11 +54,7 @@ class Benchmark:
         )
 
         self.model.load_state_dict(state['state_dict'])
-        if self.model_type == 'wnet':
-            self.model.optimizer_enc = state['optimizer_enc']
-            self.model.optimizer_dec = state['optimizer_dec']
-        else:
-            self.model.optimizer = state['optimizer']
+        self.model.optimizer = state['optimizer']
 
         test_images = sorted(glob.glob("{}/*".format(self.input_img_dir)))
         test_masks  = sorted(glob.glob("{}/*".format(self.input_mask_dir)))

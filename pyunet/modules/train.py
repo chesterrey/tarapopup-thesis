@@ -95,12 +95,7 @@ class Train:
             else:
                 self.model.optimizer = state['optimizer']
 
-        if self.model_type == 'wnet':
-            optimizer   = {
-                'enc': optim.Adam(self.model.enc.parameters(), lr=self.learning_rate),
-                'dec': optim.Adam(self.model.parameters(), lr=self.learning_rate)
-            }
-            
+        if self.model_type == 'wnet':    
             loss_fn = {
                 # 'enc': soft_normalized_cut_loss,
                 # 'dec': reconstruction_loss
@@ -111,7 +106,6 @@ class Train:
             print("Loss Type: {} and {}".format('soft_normalized_cut_loss', 'reconstruction_loss'))
 
         else:
-            optimizer   = optim.Adam(self.model.parameters(), lr=self.learning_rate)
             if self.loss_type == 'CE':
                 loss_fn = nn.CrossEntropyLoss()
             elif self.loss_type == 'DL':
@@ -126,6 +120,7 @@ class Train:
 
             print("Loss Type: {}".format(self.loss_type))
 
+        optimizer   = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         scaler      = torch.cuda.amp.GradScaler()
 
         train_ds = CustomDataset(
@@ -179,18 +174,10 @@ class Train:
             # Save model after every epoch
             print("Saving model to {}...".format(self.model_file))
 
-            if self.model_type == 'wnet':
-                state = {
-                    'state_dict': self.model.state_dict(),
-                    'optimizer_enc': optimizer['enc'].state_dict(),
-                    'optimizer_dec': optimizer['dec'].state_dict()
-                }
-
-            else:
-                state = {
-                    'state_dict': self.model.state_dict(),
-                    'optimizer': optimizer.state_dict()
-                }
+            state = {
+                'state_dict': self.model.state_dict(),
+                'optimizer': optimizer.state_dict()
+            }
 
             torch.save(state, self.model_file)
 
@@ -214,17 +201,17 @@ class Train:
                 encoded = model(data, 'enc')
                 soft_n_cut_loss = loss_fn['enc'](encoded, targets)
 
-                optimizer['enc'].zero_grad()
+                optimizer.zero_grad()
                 scaler.scale(soft_n_cut_loss).backward(retain_graph=True)
-                scaler.step(optimizer['enc'])
+                scaler.step(optimizer)
                 scaler.update()
 
                 decoded = model(data, 'dec')
                 reconstruction_loss = loss_fn['dec'](decoded, targets)
 
-                optimizer['dec'].zero_grad()
+                optimizer.zero_grad()
                 scaler.scale(reconstruction_loss).backward()
-                scaler.step(optimizer['dec'])
+                scaler.step(optimizer)
                 scaler.update()
 
                 loss = soft_n_cut_loss.item() + reconstruction_loss.item()
