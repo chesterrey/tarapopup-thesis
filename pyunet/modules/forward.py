@@ -22,6 +22,7 @@ class Forward:
         self.in_channels    = params.get('in_channels') or 3
         self.out_channels   = params.get('out_channels') or 2
         self.dim            = (self.img_width, self.img_height)
+        self.classes        = params.get('classes') or 2
 
         print("Dimension: {}".format(self.dim))
 
@@ -37,7 +38,7 @@ class Forward:
 
         print("Using model type: {}".format(self.model_type))
 
-        model = initialize_model(self.in_channels, self.out_channels, self.model_type, self.device)
+        model = initialize_model(self.in_channels, self.out_channels, self.model_type, self.device, self.classes)
 
         model.load_state_dict(state['state_dict'])
 

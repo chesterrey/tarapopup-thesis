@@ -44,6 +44,7 @@ class Train:
         self.cont                   = params.get('cont') or False
         self.loss_type              = params.get('loss_type') or 'CE'
         self.model_type             = params.get('model_type') or 'unet'
+        self.classes                = params.get('classes') or 2
 
         self.test_img_dir   = params.get('test_img_dir') or None
         self.test_mask_dir  = params.get('test_mask_dir') or None
@@ -74,7 +75,8 @@ class Train:
             self.in_channels,
             self.out_channels,
             self.model_type,
-            self.device
+            self.device,
+            self.classes
         )
 
         print(self.model)
@@ -97,9 +99,9 @@ class Train:
 
         if self.model_type == 'wnet':    
             loss_fn = {
-                # 'enc': soft_normalized_cut_loss,
+                'enc': soft_normalized_cut_loss,
                 # 'dec': reconstruction_loss
-                'enc': nn.CrossEntropyLoss(),
+                # 'enc': nn.CrossEntropyLoss(),
                 'dec': nn.CrossEntropyLoss()
             }
 
@@ -199,7 +201,7 @@ class Train:
 
             if self.model_type == 'wnet':
                 encoded = model(data, 'enc')
-                soft_n_cut_loss = loss_fn['enc'](encoded, targets)
+                soft_n_cut_loss = loss_fn['enc'](encoded, targets, self.classes)
 
                 optimizer.zero_grad()
                 scaler.scale(soft_n_cut_loss).backward(retain_graph=True)

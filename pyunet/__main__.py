@@ -70,6 +70,7 @@ def main():
     parser.add_argument("--test-mask-dir", help="Test mask dir", type=str, default="test/masks")
     parser.add_argument("--sampled-index", help="Sampled index", type=int, default=-1)
     parser.add_argument("--export-file", help="Export file", type=str, default='model.onnx')
+    parser.add_argument("--classes", help="Classes", type=int, default=2)
 
     args = parser.parse_args()
 
@@ -101,6 +102,7 @@ def main():
     test_mask_dir   = args.test_mask_dir
     sampled_index   = args.sampled_index
     export_file     = args.export_file
+    classes         = args.classes
 
     if mode =="train":
         params = {
@@ -118,7 +120,8 @@ def main():
             'out_channels':     out_channels,
             'cont':             cont,
             'loss_type':        loss_type,
-            'model_type':       model_type
+            'model_type':       model_type,
+            'classes':          classes
         }
 
         cmd = Train(params=params)
@@ -134,7 +137,8 @@ def main():
             'device':       device,
             'model_type':   model_type,
             'in_channels':  in_channels,
-            'out_channels': out_channels
+            'out_channels': out_channels,
+            'classes':      classes
         }
 
         cmd = Forward(params=params)
@@ -152,7 +156,8 @@ def main():
             'out_channels':     out_channels,
             'display_hidth':    display_width,
             'display_height':   display_height,
-            'model_type':       model_type
+            'model_type':       model_type,
+            'classes':          classes
         }
 
         cmd = Monitor(params=params)
@@ -170,7 +175,8 @@ def main():
             'out_channels':     out_channels,
             'display_hidth':    display_width,
             'display_height':   display_height,
-            'model_type':       model_type
+            'model_type':       model_type,
+            'classes':          classes
         }
 
         cmd = MonitorOnnx(params=params)
@@ -188,7 +194,8 @@ def main():
             'gpu_index':        gpu_index,
             'sampled_index':    sampled_index,
             'in_channels':      in_channels,
-            'out_channels':     out_channels
+            'out_channels':     out_channels,
+            'classes':          classes
         }
         
         cmd = SamplePair(params=params)
@@ -251,6 +258,7 @@ def main():
             'model_type':       model_type,
             'in_channels':      in_channels,
             'out_channels':     out_channels,
+            'classes':          classes
         }
 
         cmd = Benchmark(params=params)

@@ -18,6 +18,7 @@ set IN_CHANNELS=3
 set OUT_CHANNELS=3
 set LOSS_TYPE=CE
 set MODEL_TYPE=wnet
+set CLASSES=2
 set CONT=False
 
  python -m pyunet^
@@ -35,4 +36,5 @@ set CONT=False
   --loss-type %LOSS_TYPE%^
   --in-channels %IN_CHANNELS%^
   --out-channels %OUT_CHANNELS%^
+  --classes %CLASSES%^
   --cont %CONT%

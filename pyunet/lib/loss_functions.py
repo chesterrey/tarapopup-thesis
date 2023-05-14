@@ -122,7 +122,7 @@ def tversky_loss(p, y, alpha=1, beta=1, eps=1e-7):
 
     return (1 - tversky_loss)
 
-def soft_normalized_cut_loss(y_pred, y_true, K=2):
+def soft_normalized_cut_loss(y_pred, y_true, K=3):
     """
     Compute a simplified Soft Normalized Cut Loss.
     Assumes each pixel is a separate segment (no affinity measures).

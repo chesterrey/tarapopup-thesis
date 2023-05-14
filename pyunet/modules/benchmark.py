@@ -30,6 +30,7 @@ class Benchmark:
         self.model_type             = params.get('model_type')
         self.in_channels            = params.get('in_channels') or 3
         self.out_channels           = params.get('out_channels') or 3
+        self.classes                = params.get('classes') or 2
 
     def execute(self):
         print("Mode: Benchmark")
@@ -45,7 +46,8 @@ class Benchmark:
             self.in_channels,
             self.out_channels,
             self.model_type,
-            self.device
+            self.device,
+            self.classes
         )
 
         state = torch.load(

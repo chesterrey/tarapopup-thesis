@@ -8,6 +8,7 @@ set MODEL_TYPE=wnet
 set GPU_INDEX=0
 set IN_CHANNELS=3
 set OUT_CHANNELS=3
+set CLASSES=2
 @REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\covid19ctscan\images\scan_slice00.png"
 @REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\train_images\131368cc17e44240_28955.jpg"
 set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\images\gt2000000-1-400-001.png"
@@ -22,6 +23,7 @@ python -m pyunet^
   --device %DEVICE%^
   --gpu-index %GPU_INDEX%^
   --in-channels %IN_CHANNELS%^
-  --out-channels %OUT_CHANNELS%
+  --out-channels %OUT_CHANNELS%^
+  --classes %CLASSES%
   
 

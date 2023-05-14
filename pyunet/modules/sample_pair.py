@@ -27,6 +27,8 @@ class SamplePair:
         self.in_channels    = params.get('in_channels') or 3
         self.out_channels   = params.get('out_channels') or 2
 
+        self.classes = params.get('classes') or 2
+
         self.sampled_index = params.get('sampled_index') or -1
 
     def execute(self):

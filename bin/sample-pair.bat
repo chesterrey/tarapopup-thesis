@@ -8,6 +8,7 @@ set IMG_WIDTH=336
 set IMG_HEIGHT=336
 set IN_CHANNELS=3
 set OUT_CHANNELS=3
+set CLASSES=2
 @REM set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\val_images"
 @REM set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\val_masks"
 set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\images"
@@ -23,6 +24,7 @@ python -m pyunet^
  --input-mask-dir %MASKED_IMG_DIR%^
  --in-channels %IN_CHANNELS%^
  --out-channels %OUT_CHANNELS%^
+ --classes %CLASSES%^
  --model-file %MODEL_FILE%^
  --device %DEVICE%^
  --model-type %MODEL_TYPE%
