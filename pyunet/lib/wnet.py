@@ -8,7 +8,7 @@ import torch.utils.checkpoint as cp
 
 class UEnc(nn.Module):
     def __init__(
-        self, in_channels=3, out_channels=2,
+        self, in_channels, out_channels,
     ):
         super(UEnc, self).__init__()
 
@@ -104,7 +104,7 @@ class UEnc(nn.Module):
     
 class UDec(nn.Module):
     def __init__(
-        self, in_channels=2, out_channels=3
+        self, in_channels, out_channels
     ):
         super(UDec, self).__init__()
 
@@ -200,7 +200,7 @@ class UDec(nn.Module):
 
 class WNet(nn.Module):
     def __init__(
-        self, in_channels=3, out_channels=3, k=2
+        self, in_channels=3, out_channels=3, k=3
     ):
         super(WNet, self).__init__()
 

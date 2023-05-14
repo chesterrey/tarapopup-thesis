@@ -132,7 +132,9 @@ def main():
             'input_img':    input_img,
             'gpu_index':    gpu_index,
             'device':       device,
-            'model_type':   model_type
+            'model_type':   model_type,
+            'in_channels':  in_channels,
+            'out_channels': out_channels
         }
 
         cmd = Forward(params=params)
@@ -184,7 +186,9 @@ def main():
             'model_type':       model_type,
             'device':           device,
             'gpu_index':        gpu_index,
-            'sampled_index':    sampled_index
+            'sampled_index':    sampled_index,
+            'in_channels':      in_channels,
+            'out_channels':     out_channels
         }
         
         cmd = SamplePair(params=params)
