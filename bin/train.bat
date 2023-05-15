@@ -1,18 +1,16 @@
-set DIR="C:\Users\acer\Documents\pyunet"
+set DIR="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis"
 cd %DIR%
 
 @REM Parameters:
 set DEVICE=cuda
 set GPU_INDEX=0
-set IMG_WIDTH=336
-set IMG_HEIGHT=336
-set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\train_images"
-set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\dataset\combined\train_masks"
-@REM set INPUT_IMG_DIR="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\images"
-@REM set MASKED_IMG_DIR="C:\Users\acer\Documents\pyunet\notebooks\images\ebhi-seg-normal\masks"
-set MODEL_FILE="C:\Users\acer\Documents\pyunet\model.pth"
+set IMG_WIDTH=512
+set IMG_HEIGHT=512
+set INPUT_IMG_DIR="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis\dataset\combined\train_images"
+set MASKED_IMG_DIR="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis\dataset\combined\train_masks"
+set MODEL_FILE="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis\model.pth"
 set BATCH_SIZE=1
-set EPOCHS=100
+set EPOCHS=300
 set LEARNING_RATE=0.003
 set IN_CHANNELS=3
 set OUT_CHANNELS=2

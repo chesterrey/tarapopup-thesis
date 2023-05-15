@@ -1,4 +1,4 @@
-set DIR="C:\Users\acer\Documents\pyunet"
+set DIR="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis"
 
 cd %DIR%
 
@@ -6,10 +6,8 @@ cd %DIR%
 set DEVICE=cuda
 set MODEL_TYPE=wnet
 set GPU_INDEX=0
-@REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\notebooks\images\covid19ctscan\images\scan_slice00.png"
-@REM set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\train_images\131368cc17e44240_28955.jpg"
-set INPUT_IMG="C:\Users\acer\Documents\pyunet\dataset\combined\val_images\bone (2).JPG"
-set MODEL_FILE="C:\Users\acer\Documents\pyunet\model.pth"
+set INPUT_IMG="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis\dataset\combined\train_images\bone (3).JPG"
+set MODEL_FILE="C:\Users\Andre\OneDrive - ateneo.edu\Documents\vscode_projects\tarapopup-thesis\model.pth"
 
 python -m pyunet^
   --mode forward^

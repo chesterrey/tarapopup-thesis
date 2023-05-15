@@ -10,7 +10,7 @@ data/
 test/
 
 #jobs/*.sh
-
+*.bat
 *.yaml
 *.yml
 
