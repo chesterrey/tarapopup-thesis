@@ -79,6 +79,7 @@ class Benchmark:
 
         for i in range(num_images):
 
+
             image_file  = test_images[i]
             mask_file   = test_masks[i]
 
@@ -91,24 +92,17 @@ class Benchmark:
 
             prediction_end = time.time()
 
-            
+            mask_vectorized = mask.ravel().astype(int)
+            prediction_vectorized = prediction.ravel().astype(int)
+
+            accuracy    = accuracy_score(mask_vectorized, prediction_vectorized)
+            f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
+            precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
+            recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
+
             if self.model_type == 'wnet':
-
-                # Convert the softmax outputs into class predictions
-                prediction_probs = torch.softmax(prediction, dim=1)
-                prediction_classes = torch.argmax(prediction_probs, dim=1)
-
-                mask_vectorized = mask.ravel().astype(int)
-                prediction_vectorized = prediction_classes.ravel().astype(int)
-
-                accuracy    = accuracy_score(mask_vectorized, prediction_vectorized)
-                f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-                precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-                recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
-
                 specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.classes), average='macro', zero_division=1)
                 jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.classes), average='macro')
-
             else:
 
                 mask_vectorized = mask.ravel().astype(int)
