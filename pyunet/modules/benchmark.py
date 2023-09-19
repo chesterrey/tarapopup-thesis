@@ -14,8 +14,7 @@ from sklearn.metrics import recall_score
 import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from lib.utils import get_image, get_mask, get_predicted_img, dice_score, count_parameters, initialize_model, compute_model_flops
-
+from lib.utils import get_image, get_mask, get_predicted_img, dice_score, count_parameters, initialize_model, load_model_for_inference
 class Benchmark:
     def __init__(self, params={}):
         self.params = params
@@ -30,80 +29,72 @@ class Benchmark:
         self.model_type             = params.get('model_type')
         self.in_channels            = params.get('in_channels') or 3
         self.out_channels           = params.get('out_channels') or 3
-        self.classes                = params.get('classes') or 2
+        self.models                 = params.get('models') or []
 
     def execute(self):
         print("Mode: Benchmark")
-        print("Input Image Dir: {}".format(self.input_img_dir))
-        print("Input Mask Dir:{}".format(self.input_mask_dir))
-        print("Model Type: {}".format(self.model_type))
+        print(f"Input Image Dir: {self.input_img_dir}")
+        print(f"Input Mask Dir:{self.input_mask_dir}")
+        print(f"In Channels: {self.in_channels}")
+        print(f"Out Channels: {self.out_channels}")
 
         if self.device == 'cuda':
-            print("CUDA Device: {}".format(torch.cuda.get_device_name(self.gpu_index)))
+            print(f"CUDA Device: {torch.cuda.get_device_name(self.gpu_index)}")
             self.device = "cuda:{}".format(self.gpu_index)
 
-        self.model = initialize_model(
-            self.in_channels,
-            self.out_channels,
-            self.model_type,
-            self.device,
-            self.classes
-        )
+        scores = {
+            'model_type':       [],
+            'num_params':       [],
+            'ave_accuracy':     [],
+            'ave_f1':           [],
+            'ave_precision':    [],
+            'ave_recall':       [],
+            'ave_jaccard':      [],
+            'elapsed_time':     []
+        }
 
-        state = torch.load(
-            self.model_file,
-            map_location=self.device
-        )
+        for model_i, model_cfg in enumerate(self.models):
+            model_type = model_cfg['type']
+            model_file = model_cfg['file']
 
-        self.model.load_state_dict(state['state_dict'])
-        self.model.optimizer = state['optimizer']
+            print(f"Benchmarking model {model_type} ({model_file})")
 
-        test_images = sorted(glob.glob("{}/*".format(self.input_img_dir)))
-        test_masks  = sorted(glob.glob("{}/*".format(self.input_mask_dir)))
+            state = torch.load(
+                model_file,
+                map_location=self.device
+            )
 
-        dim = (self.img_width, self.img_height)
+            model = load_model_for_inference(
+                self.in_channels,
+                self.out_channels,
+                model_type,
+                self.device,
+                state['state_dict']
+            )
 
-        num_images = len(test_images)
+            test_images = sorted(glob.glob("{}/*".format(self.input_img_dir)))
+            test_masks  = sorted(glob.glob("{}/*".format(self.input_mask_dir)))
 
-        flops = compute_model_flops(self.model, (self.in_channels, self.img_height, self.img_width))
+            dim = (self.img_width, self.img_height)
 
-        ave_accuracy    = 0.0
-        ave_f1          = 0.0
-        ave_precision   = 0.0
-        ave_recall      = 0.0
-        ave_specificity = 0.0
-        ave_jaccard     = 0.0
-        ave_prediction  = 0.0
+            num_images = len(test_images)
 
-        start_time = time.time()
+            ave_accuracy    = 0.0
+            ave_f1          = 0.0
+            ave_precision   = 0.0
+            ave_recall      = 0.0
+            ave_jaccard     = 0.0
 
-        for i in range(num_images):
+            start_time = time.time()
 
+            for i in range(num_images):
+                image_file  = test_images[i]
+                mask_file   = test_masks[i]
 
-            image_file  = test_images[i]
-            mask_file   = test_masks[i]
+                img  = get_image(image_file, dim)
+                mask = get_mask(mask_file, dim)
 
-            img  = get_image(image_file, dim)
-            mask = get_mask(mask_file, dim)
-
-            prediction_start = time.time()
-
-            prediction = get_predicted_img(img, self.model, device=self.device)
-
-            prediction_end = time.time()
-
-            mask_vectorized = mask.ravel().astype(int)
-            prediction_vectorized = prediction.ravel().astype(int)
-
-            accuracy    = accuracy_score(mask_vectorized, prediction_vectorized)
-            f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-            precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-            recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
-
-            if self.model_type == 'wnet':
-                specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.classes), average='macro', zero_division=1)
-                jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.classes), average='macro')
-            else:
+                prediction = get_predicted_img(img, model, device=self.device)
 
                 mask_vectorized = mask.ravel().astype(int)
                 prediction_vectorized = prediction.ravel().astype(int)
@@ -111,48 +102,34 @@ class Benchmark:
                 accuracy    = accuracy_score(mask_vectorized, prediction_vectorized)
                 f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
                 precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-                recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-
-
-                specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro', zero_division=1)
+                recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
                 jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro')
 
-            ave_accuracy += accuracy
-            ave_f1 += f1
-            ave_precision += precision
-            ave_recall += recall
-            ave_specificity += specificity
-            ave_jaccard += jaccard
-            ave_prediction += (prediction_end - prediction_start)
+                ave_accuracy += accuracy
+                ave_f1 += f1
+                ave_precision += precision
+                ave_recall += recall
+                ave_jaccard += jaccard
 
-        end_time = time.time()
+            end_time = time.time()
 
-        elapsed_time = end_time - start_time
-        elapsed_time = round(elapsed_time, 4)
+            elapsed_time = end_time - start_time
+            elapsed_time = round(elapsed_time, 4)
 
-        ave_accuracy    = ave_accuracy / num_images
-        ave_f1          = ave_f1 / num_images
-        ave_precision   = ave_precision / num_images
-        ave_recall      = ave_recall / num_images
-        ave_specificity = ave_specificity / num_images
-        ave_jaccard     = ave_jaccard / num_images
-        ave_prediction  = ave_prediction / num_images
+            ave_accuracy    = ave_accuracy / num_images
+            ave_f1          = ave_f1 / num_images
+            ave_precision   = ave_precision / num_images
+            ave_recall      = ave_recall / num_images
+            ave_jaccard     = ave_jaccard / num_images
 
-        scores = [
-            {
-                'model_type':       self.model_type,
-                'num_params':       count_parameters(self.model),
-                'ave_accuary':      ave_accuracy,
-                'ave_f1':           ave_f1,
-                'ave_precision':    ave_precision,
-                'ave_recall':       ave_recall,
-                # 'ave_specificity':  ave_specificity,
-                'ave_jaccard':      ave_jaccard,
-                'elapsed_time':     elapsed_time,
-                'FLOPS':            flops,
-                'ave_prediction':   ave_prediction
-            }
-    ]
+            scores['model_type'].append(model_type)
+            scores['num_params'].append(count_parameters(model))
+            scores['ave_accuracy'].append(ave_accuracy)
+            scores['ave_f1'].append(ave_f1)
+            scores['ave_precision'].append(ave_precision)
+            scores['ave_recall'].append(ave_recall)
+            scores['ave_jaccard'].append(ave_jaccard)
+            scores['elapsed_time'].append(elapsed_time)
 
         df_results = pd.DataFrame(scores)
         print(df_results)

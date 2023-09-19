@@ -1,40 +1,63 @@
 import sys
 import argparse
 import os
-import torch
 import datetime
+import os.path
+import sys
+import json
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
-from .modules.train import Train
-from .modules.forward import Forward
-from .modules.monitor import Monitor
-from .modules.monitor_onnx import MonitorOnnx
-from .modules.export_onnx import ExportOnnx
-from .modules.generate_tiff import GenerateTiff
-from .modules.sample_pair import SamplePair
-from .modules.generate_dataset import GenerateDataset
-from .modules.sample_frame import SampleFrame
-from .modules.extract_unique_gray import ExtractUniqueGray
-from .modules.benchmark import Benchmark
+from modules.train import Train
+from modules.forward import Forward
+from modules.monitor import Monitor
+from modules.monitor_onnx import MonitorOnnx
+from modules.export_onnx import ExportOnnx
+from modules.generate_tiff import GenerateTiff
+from modules.sample_pair import SamplePair
+from modules.depth.sample_pair_depth import SamplePairDepth
+from modules.generate_dataset import GenerateDataset
+from modules.sample_frame import SampleFrame
+from modules.extract_unique_gray import ExtractUniqueGray
+from modules.benchmark import Benchmark
+from modules.assert_model import AssertModel
+from modules.rgb2mask import Rgb2Mask
+
+# Depth
+from modules.depth.train_depth import TrainDepth
+
+from lib.helpers.extract_params_from_config import ExtractParamsFromConfig
 
 mode_choices = [
     "train",
+    "train-depth",
     "forward",
     "generate-tiff",
     "monitor",
     "monitor-onnx",
     "export-onnx",
     "sample-pair",
+    "sample-pair-depth",
     "benchmark",
     "generate-dataset",
     "sample-frame",
-    "extract-unique-gray"
+    "extract-unique-gray",
+    "assert-model",
+    "rgb2mask",
+    "train-depth"
 ]
 
 model_type_choices = [
     "unet",
     "unet_attn",
     "unet_attn_dp",
+    "unet_attn_ghost",
+    "unet_attn_inverted_residual_block",
+    "unet_attn_stacked_ghost_irb",
+    "unet_depth",
+    "unet_attn_depth",
+    "unet_attn_dp_depth",
     "wnet",
+    "wnet_vgg_unet"
 ]
 
 default_dataset_name = (datetime.datetime.now()).strftime("%Y%m%d%H%M%S")
@@ -57,7 +80,7 @@ def main():
     parser.add_argument("--input-img", help="Input image", type=str, required=False)
     parser.add_argument("--in-channels", help="In Channels", type=int, default=3)
     parser.add_argument("--out-channels", help="Out Channels", type=int, default=2)
-    parser.add_argument("--unique-values", help="Features", type=str, nargs='+', required=False)
+    parser.add_argument("--unique-values", help="Features", type=int, nargs='+', required=False)
     parser.add_argument("--video", help="Video index", type=str, default="0")
     parser.add_argument("--img-suffix", help="Img Suffix", type=str, default="jpg")
     parser.add_argument("--cont", help="Continue training", type=bool, default=False)
@@ -70,7 +93,8 @@ def main():
     parser.add_argument("--test-mask-dir", help="Test mask dir", type=str, default="test/masks")
     parser.add_argument("--sampled-index", help="Sampled index", type=int, default=-1)
     parser.add_argument("--export-file", help="Export file", type=str, default='model.onnx')
-    parser.add_argument("--classes", help="Classes", type=int, default=2)
+    parser.add_argument("--image-file", help="Image file", type=str, default="img.png")
+    parser.add_argument("--config-file", help="Config file", type=str, default="")
 
     args = parser.parse_args()
 
@@ -102,7 +126,8 @@ def main():
     test_mask_dir   = args.test_mask_dir
     sampled_index   = args.sampled_index
     export_file     = args.export_file
-    classes         = args.classes
+    image_file      = args.image_file
+    config_file     = args.config_file
 
     if mode =="train":
         params = {
@@ -120,11 +145,39 @@ def main():
             'out_channels':     out_channels,
             'cont':             cont,
             'loss_type':        loss_type,
-            'model_type':       model_type,
-            'classes':          classes
+            'model_type':       model_type
         }
 
+        if config_file:
+            with open(config_file) as json_file:
+                params = json.load(json_file)
+
         cmd = Train(params=params)
+        cmd.execute()
+
+    elif mode == "train-depth":
+        params = {
+            'img_width':        img_width,
+            'img_height':       img_height,
+            'device':           device,
+            'gpu_index':        gpu_index,
+            'input_img_dir':    input_img_dir,
+            'input_mask_dir':   input_mask_dir,
+            'epochs':           epochs,
+            'learning_rate':    learning_rate,
+            'model_file':       model_file,
+            'batch_size':       batch_size,
+            'in_channels':      in_channels,
+            'out_channels':     out_channels,
+            'cont':             cont,
+            'model_type':       model_type
+        }
+
+        if config_file:
+            with open(config_file) as json_file:
+                params = json.load(json_file)
+
+        cmd = TrainDepth(params=params)
         cmd.execute()
 
     elif mode =="forward":
@@ -135,10 +188,7 @@ def main():
             'input_img':    input_img,
             'gpu_index':    gpu_index,
             'device':       device,
-            'model_type':   model_type,
-            'in_channels':  in_channels,
-            'out_channels': out_channels,
-            'classes':      classes
+            'model_type':   model_type
         }
 
         cmd = Forward(params=params)
@@ -154,10 +204,9 @@ def main():
             'device':           device,
             'in_channels':      in_channels,
             'out_channels':     out_channels,
-            'display_hidth':    display_width,
+            'display_width':    display_width,
             'display_height':   display_height,
-            'model_type':       model_type,
-            'classes':          classes
+            'model_type':       model_type
         }
 
         cmd = Monitor(params=params)
@@ -175,30 +224,25 @@ def main():
             'out_channels':     out_channels,
             'display_hidth':    display_width,
             'display_height':   display_height,
-            'model_type':       model_type,
-            'classes':          classes
+            'model_type':       model_type
         }
 
         cmd = MonitorOnnx(params=params)
         cmd.execute()
 
+    # Exclusively run mode with json config
     elif mode == "sample-pair":
-        params = {
-            'img_width':        img_width,
-            'img_height':       img_height,
-            'input_img_dir':    input_img_dir,
-            'input_mask_dir':   input_mask_dir,
-            'model_file':       model_file,
-            'model_type':       model_type,
-            'device':           device,
-            'gpu_index':        gpu_index,
-            'sampled_index':    sampled_index,
-            'in_channels':      in_channels,
-            'out_channels':     out_channels,
-            'classes':          classes
-        }
+        with open(config_file) as json_file:
+            params = json.load(json_file)
         
         cmd = SamplePair(params=params)
+        cmd.execute()
+
+    elif mode == "sample-pair-depth":
+        with open(config_file) as json_file:
+            params = json.load(json_file)
+        
+        cmd = SamplePairDepth(params=params)
         cmd.execute()
 
     elif mode == "generate-tiff":
@@ -247,19 +291,8 @@ def main():
         cmd.execute()
 
     elif mode == "benchmark":
-        params = {
-            'img_width':        img_width,
-            'img_height':       img_height,
-            'device':           device,
-            'gpu_index':        gpu_index,
-            'input_img_dir':    input_img_dir,
-            'input_mask_dir':   input_mask_dir,
-            'model_file':       model_file,
-            'model_type':       model_type,
-            'in_channels':      in_channels,
-            'out_channels':     out_channels,
-            'classes':          classes
-        }
+        with open(config_file) as json_file:
+            params = json.load(json_file)
 
         cmd = Benchmark(params=params)
         cmd.execute()
@@ -278,6 +311,31 @@ def main():
         }
 
         cmd = ExportOnnx(params=params)
+        cmd.execute()
+
+    elif mode == "assert-model":
+        params = {
+            'device':       device,
+            'gpu_index':    gpu_index,
+            'model_type':   model_type,
+            'img_width':    img_width,
+            'img_height':   img_height,
+            'in_channels':  in_channels,
+            'out_channels': out_channels
+        }
+
+        cmd = AssertModel(params=params)
+        cmd.execute()
+    
+    elif mode == "rgb2mask":
+        params = {
+            'img_width':    img_width,
+            'img_height':   img_height,
+            'config_file':  config_file,
+            'image_file':   image_file
+        }
+
+        cmd = Rgb2Mask(params=params)
         cmd.execute()
 
     else:

@@ -6,46 +6,47 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 from double_conv import DoubleConv
-from attention_block_dp import AttentionBlockDp
-from depthwise_seperable_conv import DepthwiseSeperableConv
-from spatial_sse import SpatialSSE
+from attention_block import AttentionBlock
+from ghost_conv import GhostConv
 from up_conv import UpConv
+from up_conv_ghost import UpConvGhost
 
-class UNetAttnDp(nn.Module):
+class UNetAttnGhost(nn.Module):
     def __init__(
         self, in_channels=3, out_channels=1
     ):
-        super(UNetAttnDp, self).__init__()
+        super(UNetAttnGhost, self).__init__()
+
+        alpha = 0.5
 
         self.in_channels    = in_channels
         self.out_channels   = out_channels
 
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv1 = DepthwiseSeperableConv(in_channels, 64)
-        self.conv2 = DepthwiseSeperableConv(64, 128)
-        self.conv3 = DepthwiseSeperableConv(128, 256)
-        self.conv4 = DepthwiseSeperableConv(256, 512)
-        self.conv5 = DepthwiseSeperableConv(512, 1024)
+        self.conv1 = GhostConv(in_channels, 64)
+        self.conv2 = GhostConv(64, 128)
+        self.conv3 = GhostConv(128, 256)
+        self.conv4 = GhostConv(256, 512)
+        self.conv5 = GhostConv(512, 1024)
 
-        self.up5 = UpConv(1024, 512)
-        self.attn5 = AttentionBlockDp(512, 512, 256)
-        self.up_conv5 = DepthwiseSeperableConv(1024, 512)
+        self.up5 = UpConvGhost(1024, 512)
+        self.attn5 = AttentionBlock(512, 512, 256)
+        self.up_conv5 = GhostConv(1024, 512)
 
-        self.up4 = UpConv(512, 256)
-        self.attn4 = AttentionBlockDp(256, 256, 128)
-        self.up_conv4 = DepthwiseSeperableConv(512, 256)
+        self.up4 = UpConvGhost(512, 256)
+        self.attn4 = AttentionBlock(256, 256, 128)
+        self.up_conv4 = GhostConv(512, 256)
 
-        self.up3 = UpConv(256, 128)
-        self.attn3 = AttentionBlockDp(128, 128, 64)
-        self.up_conv3 = DepthwiseSeperableConv(256, 128)
+        self.up3 = UpConvGhost(256, 128)
+        self.attn3 = AttentionBlock(128, 128, 64)
+        self.up_conv3 = GhostConv(256, 128)
 
-        self.up2 = UpConv(128, 64)
-        self.attn2 = AttentionBlockDp(64, 64, 32)
-        self.up_conv2 = DepthwiseSeperableConv(128, 64)
+        self.up2 = UpConvGhost(128, 64)
+        self.attn2 = AttentionBlock(64, 64, 32)
+        self.up_conv2 = GhostConv(128, 64)
 
-        #self.conv_1x1 = nn.Conv2d(64, out_channels, kernel_size=1, stride=1, padding=0)
-        self.conv_1x1 = DepthwiseSeperableConv(64, out_channels)
+        self.conv_1x1 = GhostConv(64, out_channels)
 
     def forward(self, x):
         # Encoding path

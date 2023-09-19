@@ -1,0 +1,14 @@
+{
+  "img_width": 128,
+  "img_height": 128,
+  "device": "cuda",
+  "gpu_index": 0,
+  "input_img_dir": "D:/School Stuff/CSCI 199.2/pyunet/notebooks/images/ebhi-seg-polyp/images",
+  "input_mask_dir": "D:/School Stuff/CSCI 199.2/pyunet/notebooks/images/ebhi-seg-polyp/masks",
+  "model_type": "wnet",
+  "model_file": "D:/School Stuff/CSCI 199.2/pyunet/models/wnet.pth",
+  "in_channels": 3,
+  "out_channels": 2
+}
+
+

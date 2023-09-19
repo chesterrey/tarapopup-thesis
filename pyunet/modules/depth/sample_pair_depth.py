@@ -9,7 +9,7 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from utils import load_model_for_inference
 
-class SamplePair:
+class SamplePairDepth:
     def __init__(self, params={}):
         self.params = params
 
@@ -58,7 +58,7 @@ class SamplePair:
         img_for_plot = cv2.imread(img_path, 1)
         img_for_plot = cv2.cvtColor(img_for_plot, cv2.COLOR_BGR2RGB)
 
-        mask_for_plot = cv2.imread(mask_path, 0)
+        mask_for_plot = cv2.imread(mask_path, 0) / 255
 
         dim = (self.img_width, self.img_height)
 
@@ -66,28 +66,15 @@ class SamplePair:
         mask_for_plot   = cv2.resize(mask_for_plot, dim)
 
         num_models  = len(self.models)
-        num_cols    = num_models + 2
-        num_rows    = 1
+        num_cols    = num_models + 3
 
-        subplot_width   = 3
-        subplot_height  = 4
-
-        # Create a figure and grid of subplots
-        fig, axes = plt.subplots(
-            num_rows, 
-            num_cols, 
-            figsize=(subplot_width * num_cols, subplot_height)
-        )
-
-        # Original Image
-        axes[0].imshow(img_for_plot)
-        axes[0].set_title('Image')
-        axes[0].axis('off')
-
-        # Masked Image
-        axes[1].imshow(mask_for_plot)
-        axes[1].set_title('Mask')
-        axes[1].axis('off')
+        plt.figure(figsize=(18, 4))
+        plt.subplot(int(f"1{num_cols}1"))
+        plt.imshow(img_for_plot)
+        plt.title('Image')
+        plt.subplot(int(f"1{num_cols}2"))
+        plt.imshow(mask_for_plot)
+        plt.title('Mask')
 
         if self.device == 'cuda':
             print("CUDA Device: {}".format(torch.cuda.get_device_name(self.gpu_index)))
@@ -113,16 +100,12 @@ class SamplePair:
 
             x = torch.Tensor(np.array([input_image])).to(self.device)
 
-            result = model.forward(x)
-            result = torch.argmax(result, 1).detach().cpu().numpy().astype(np.float32)
-            result = result.transpose((1, 2, 0)) / self.out_channels
+            result = model.forward(x)[0]
+            result = result.detach().cpu().numpy().astype(np.float32)
+            result = result.transpose((1, 2, 0))
 
-            curr_index = model_i + 2
-            axes[curr_index].imshow(result)
-            axes[curr_index].set_title(model_type)
-            axes[curr_index].axis('off')
-
-        # Adjust the spacing between subplots
-        plt.subplots_adjust(wspace=0.2)
+            plt.subplot(int(f"1{num_cols}{model_i + 3}"))
+            plt.title(model_type)
+            plt.imshow(result)
 
         plt.show()

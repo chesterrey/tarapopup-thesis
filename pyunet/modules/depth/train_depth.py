@@ -19,10 +19,10 @@ from sklearn.metrics import recall_score
 from torch.utils.tensorboard import SummaryWriter
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from lib.loss_functions import dice_loss, tversky_loss, FocalLoss, sym_unified_focal_loss
 from lib.utils import get_image, get_mask, get_predicted_img, dice_score, initialize_model
-from lib.lovasz_losses import lovasz_softmax, lovasz_hinge
-class Train:
+from lib.depth.depth_loss import depth_loss
+
+class TrainDepth:
     def __init__(self, params={}, seed=0):
         if seed >= 0:
             torch.manual_seed(seed)
@@ -42,7 +42,6 @@ class Train:
         self.in_channels            = params.get('in_channels') or 3
         self.out_channels           = params.get('out_channels') or 3
         self.cont                   = params.get('cont') or False
-        self.loss_type              = params.get('loss_type') or 'CE'
         self.model_type             = params.get('model_type') or 'unet'
 
         self.test_img_dir   = params.get('test_img_dir') or None
@@ -86,22 +85,7 @@ class Train:
             self.model.load_state_dict(state['state_dict'])
             self.model.optimizer     = state['optimizer']
 
-        if self.loss_type == 'CE':
-            loss_fn = nn.CrossEntropyLoss()
-        elif self.loss_type == 'DL':
-            loss_fn = dice_loss
-        elif self.loss_type == 'TL':
-            loss_fn = tversky_loss
-        elif self.loss_type == 'FL':
-            loss_fn = FocalLoss()
-        # elif self.loss_type == 'DP':
-        #     loss_fn = depth_loss
-        elif self.loss_type == 'MSE':
-            loss_fn = nn.MSELoss()
-        else:
-            raise ValueError("Unsupported loss_type {}".format(self.loss_type))
-
-        print("Loss Type: {}".format(self.loss_type))
+        loss_fn = nn.MSELoss()
 
         optimizer   = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         scaler      = torch.cuda.amp.GradScaler()
@@ -135,7 +119,7 @@ class Train:
             )
 
             # write loss to tensorboard
-            self.writer.add_scalar(f"Loss ({self.model_type}-{self.loss_type})", ave_loss, epoch+1)
+            self.writer.add_scalar(f"Loss", ave_loss, epoch+1)
 
             print("Ave Loss: {}".format(ave_loss))
 
@@ -176,31 +160,27 @@ class Train:
 
         for batch_idx, (data, targets) in enumerate(loop):
             data    = data.float().to(device=self.device)
-            targets = targets.long().to(device=self.device)
+            targets = targets.float().to(device=self.device).unsqueeze(1)
 
             # Forward
             predictions = model.forward(data)
 
-            loss = loss_fn(predictions, targets)
+            #print(f"predictions shape: {predictions.shape}")
+            #print(f"targets shape: {targets.shape}")
+
+            #print("predictions")
+            #print(predictions)
+            #print("targets")
+            #print(targets)
+
+            #loss = loss_fn(predictions, targets)
+            loss = depth_loss(predictions, targets)
 
             # Backward
             optimizer.zero_grad()
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
-
-            if self.model_type == 'wnet':
-                dec_predictions = model.forward(data, mode='dec')
-                # loss_2 = loss_fn(dec_predictions, targets)
-                loss_2 = lovasz_softmax(dec_predictions, targets)
-
-                # Backward
-                optimizer.zero_grad()
-                scaler.scale(loss_2).backward()
-                scaler.step(optimizer)
-                scaler.update()
-
-                loss = loss + loss_2
 
             # update tqdm
             loop.set_postfix(loss=loss.item())
@@ -290,7 +270,7 @@ class CustomDataset(Dataset):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         original_img    = (cv2.resize(img, self.dim) / 255).transpose((2, 0, 1))
-        masked_img      = (cv2.resize(cv2.imread(mask_path, 0), self.dim))
+        masked_img      = (cv2.resize(cv2.imread(mask_path, 0), self.dim)) / 255
 
         x = torch.Tensor(original_img)
         y = torch.Tensor(masked_img)

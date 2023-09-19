@@ -4,13 +4,13 @@ import torchvision.transforms.functional as TF
 import sys
 import os
 
-from lib.double_conv import DoubleConv
+from ..double_conv import DoubleConv
 
-class UNet(nn.Module):
+class UNetDepth(nn.Module):
     def __init__(
         self, in_channels=3, out_channels=1
     ):
-        super(UNet, self).__init__()
+        super(UNetDepth, self).__init__()
 
         self.in_channels    = in_channels
         self.out_channels   = out_channels
@@ -25,6 +25,8 @@ class UNet(nn.Module):
         self.downs.append(DoubleConv(64, 128))
         self.downs.append(DoubleConv(128, 256))
         self.downs.append(DoubleConv(256, 512))
+
+        self.sigmoid = nn.Sigmoid()
 
         self.ups.append(
             nn.ConvTranspose2d(
@@ -70,7 +72,7 @@ class UNet(nn.Module):
 
         self.ups.append(DoubleConv(64 * 2, 64))
 
-        self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
+        self.final_conv = nn.Conv2d(64, 1, kernel_size=1)
 
     def forward(self, x):
         skip_connections = []
@@ -96,4 +98,4 @@ class UNet(nn.Module):
             concat_skip = torch.cat((skip_connection, x), dim=1)
             x = self.ups[idx + 1](concat_skip)
 
-        return self.final_conv(x)
+        return self.sigmoid(self.final_conv(x))

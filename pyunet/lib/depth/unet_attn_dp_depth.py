@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision.transforms.functional as TF
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from double_conv import DoubleConv
 from attention_block_dp import AttentionBlockDp
@@ -11,11 +11,11 @@ from depthwise_seperable_conv import DepthwiseSeperableConv
 from spatial_sse import SpatialSSE
 from up_conv import UpConv
 
-class UNetAttnDp(nn.Module):
+class UNetAttnDpDepth(nn.Module):
     def __init__(
         self, in_channels=3, out_channels=1
     ):
-        super(UNetAttnDp, self).__init__()
+        super(UNetAttnDpDepth, self).__init__()
 
         self.in_channels    = in_channels
         self.out_channels   = out_channels
@@ -45,7 +45,9 @@ class UNetAttnDp(nn.Module):
         self.up_conv2 = DepthwiseSeperableConv(128, 64)
 
         #self.conv_1x1 = nn.Conv2d(64, out_channels, kernel_size=1, stride=1, padding=0)
-        self.conv_1x1 = DepthwiseSeperableConv(64, out_channels)
+        self.conv_1x1 = DepthwiseSeperableConv(64, 1)
+
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         # Encoding path
@@ -89,5 +91,7 @@ class UNetAttnDp(nn.Module):
         d2 = self.up_conv2(d2)
 
         d1 = self.conv_1x1(d2)
+
+        d1 = self.sigmoid(d1)
 
         return d1
