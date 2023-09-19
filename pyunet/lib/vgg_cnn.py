@@ -57,9 +57,8 @@ class VGG16(nn.Module):
         self.downs.append(DoubleConv2dRelu(64, 128))
         self.downs.append(TripleConv2dRelu(128, 256))
         self.downs.append(TripleConv2dRelu(256, 512))
-        self.downs.append(TripleConv2dRelu(512, 512))
 
-        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
+        self.bottleneck = TripleConv2dRelu(512, 512 * 2)
 
         self.ups.append(
             nn.ConvTranspose2d(
@@ -72,7 +71,7 @@ class VGG16(nn.Module):
         self.ups.append(TripleConv2dRelu(512 * 2, 512))
         self.ups.append(
             nn.ConvTranspose2d(
-                512 * 2,
+                256 * 2,
                 256,
                 kernel_size=2,
                 stride=2
@@ -81,7 +80,7 @@ class VGG16(nn.Module):
         self.ups.append(TripleConv2dRelu(256 * 2, 256))
         self.ups.append(
             nn.ConvTranspose2d(
-                256 * 2,
+                128 * 2,
                 128,
                 kernel_size=2,
                 stride=2
@@ -90,7 +89,7 @@ class VGG16(nn.Module):
         self.ups.append(DoubleConv2dRelu(128 * 2, 128))
         self.ups.append(
             nn.ConvTranspose2d(
-                128 * 2,
+                64 * 2,
                 64,
                 kernel_size=2,
                 stride=2
@@ -108,7 +107,7 @@ class VGG16(nn.Module):
             skip_connections.append(x)
             x = self.pool(x)
 
-        x = self.avgpool(x)
+        x = self.bottleneck(x)
 
         skip_connections = skip_connections[::-1]
 

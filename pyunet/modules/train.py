@@ -189,7 +189,7 @@ class Train:
             scaler.step(optimizer)
             scaler.update()
 
-            if self.model_type == 'wnet':
+            if 'wnet' in self.model_type:
                 dec_predictions = model.forward(data, mode='dec')
                 # loss_2 = loss_fn(dec_predictions, targets)
                 loss_2 = lovasz_softmax(dec_predictions, targets)
