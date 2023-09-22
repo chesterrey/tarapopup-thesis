@@ -5,17 +5,17 @@ import sys
 import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from vgg_cnn import VGG16
-from unet import UNet
 
-
-class VGGUNet(nn.Module):
+from lib.unet import UNet
+from lib.vgg_unet import VGGUNet
+    
+class WNetVGGUNetUNet(nn.Module):
     def __init__(
         self, in_channels=3, out_channels=3, k=1
     ):
-        super(VGGUNet, self).__init__()
+        super(WNetVGGUNetUNet, self).__init__()
 
-        self.enc = VGG16(in_channels, k)
+        self.enc = VGGUNet(in_channels, k)
         self.dec = UNet(k, out_channels)
         self.softmax2d = nn.Softmax2d()
 

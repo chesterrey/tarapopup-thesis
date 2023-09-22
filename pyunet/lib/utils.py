@@ -17,7 +17,9 @@ from lib.depth.unet_attn_depth import UNetAttnDepth
 from lib.depth.unet_attn_dp_depth import UNetAttnDpDepth
 
 from lib.wnet.wnet import WNet
-from lib.wnet.wnet_vgg_unet import VGGUNet
+# from lib.wnet.wnet_vgg_unet import VGGUNet
+from lib.vgg_unet import VGGUNet
+from lib.wnet.wnet_vggunet_unet import WNetVGGUNetUNet
 
 def rgb2mask(colors, image):
     rows, cols, _ = image.shape
@@ -105,8 +107,14 @@ def initialize_model(in_channels, out_channels, model_type, device):
             in_channels=in_channels,
             out_channels=out_channels
         )
-    elif model_type == 'wnet_vgg_unet':
+    elif model_type == 'vgg_unet':
         model = VGGUNet(
+            in_channels=in_channels,
+            out_channels=out_channels
+        )
+
+    elif model_type == 'wnet_vggunet_unet':
+        model = WNetVGGUNetUNet(
             in_channels=in_channels,
             out_channels=out_channels
         )

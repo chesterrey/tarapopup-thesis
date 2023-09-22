@@ -96,6 +96,9 @@ class Train:
             loss_fn = FocalLoss()
         # elif self.loss_type == 'DP':
         #     loss_fn = depth_loss
+        # lovasz_softmax
+        elif self.loss_type == 'LS':
+            loss_fn = lovasz_softmax
         elif self.loss_type == 'MSE':
             loss_fn = nn.MSELoss()
         else:
@@ -191,7 +194,6 @@ class Train:
 
             if 'wnet' in self.model_type:
                 dec_predictions = model.forward(data, mode='dec')
-                # loss_2 = loss_fn(dec_predictions, targets)
                 loss_2 = lovasz_softmax(dec_predictions, targets)
 
                 # Backward

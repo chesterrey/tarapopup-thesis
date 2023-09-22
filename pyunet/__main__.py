@@ -57,7 +57,8 @@ model_type_choices = [
     "unet_attn_depth",
     "unet_attn_dp_depth",
     "wnet",
-    "wnet_vgg_unet"
+    "vgg_unet",
+    "wnet_vggunet_vgg",
 ]
 
 default_dataset_name = (datetime.datetime.now()).strftime("%Y%m%d%H%M%S")
