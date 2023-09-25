@@ -20,6 +20,7 @@ from lib.wnet.wnet import WNet
 # from lib.wnet.wnet_vgg_unet import VGGUNet
 from lib.vgg_unet import VGGUNet
 from lib.wnet.wnet_vggunet_unet import WNetVGGUNetUNet
+from lib.resnet_unet import ResNetUNet
 
 def rgb2mask(colors, image):
     rows, cols, _ = image.shape
@@ -115,6 +116,12 @@ def initialize_model(in_channels, out_channels, model_type, device):
 
     elif model_type == 'wnet_vggunet_unet':
         model = WNetVGGUNetUNet(
+            in_channels=in_channels,
+            out_channels=out_channels
+        )
+    
+    elif model_type == 'resnet_unet':
+        model = ResNetUNet(
             in_channels=in_channels,
             out_channels=out_channels
         )

@@ -7,7 +7,7 @@
     "in_channels": 3,
     "out_channels": 2,
     "loss_type": "CE",
-    "model_type": "resnet_cnn",
+    "model_type": "resnet_unet",
     "device": "cuda",
     "gpu_index": 0,
     "cont": false,
