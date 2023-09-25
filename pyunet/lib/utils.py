@@ -19,14 +19,7 @@ from lib.depth.unet_attn_dp_depth import UNetAttnDpDepth
 from lib.wnet.wnet import WNet
 from lib.vgg_unet import VGGUNet
 from lib.wnet.wnet_vggunet_unet import WNetVGGUNetUNet
-<<<<<<< HEAD
 from lib.resnet_unet import ResNetUNet
-=======
-from lib.wnet.wnet_unet_vggunet import WNetUNetVGGUNet
-from lib.wnet.wnet_vggunet_vggunet import WNetVGGUNetVGGUNet
-
-from lib.resnet_cnn import ResNet50
->>>>>>> 0c06025527faacab5dd6c4d7064a71a1118be2c4
 
 def rgb2mask(colors, image):
     rows, cols, _ = image.shape
