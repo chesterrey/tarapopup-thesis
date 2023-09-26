@@ -1,85 +1,66 @@
 import torch
 import torch.nn as nn
-import torchvision.transforms.functional as TF
-from vgg_cnn import TripleConv2dRelu
-
+import torchvision.models as models
+    
 class ResNet50(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(ResNet50, self).__init__()
 
+        # Create the ResNet-50 backbone
+        resnet = models.resnet50(num_classes = in_channels, pretrained=True)
+        # Remove the classification head (fc layer)
+        self.encoder = nn.Sequential(
+            resnet.conv1,
+            resnet.bn1,
+            resnet.relu,
+            resnet.maxpool,
+            resnet.layer1,
+            resnet.layer2,
+            resnet.layer3
+        )
+
+        # Create a bridge layer
+        self.bridge = nn.Sequential(
+            nn.Conv2d(1024, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True)   
+        )
+
+        reversed_layer3 = nn.Sequential(*list(reversed(resnet.layer3)))
+        reversed_layer2 = nn.Sequential(*list(reversed(resnet.layer2)))
+        reversed_layer1 = nn.Sequential(*list(reversed(resnet.layer1)))
         
-        self.ups = nn.ModuleList()
-        self.downs = nn.ModuleList()
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-
-        self.downs.append(TripleConv2dRelu(in_channels, 512))
-        self.downs.append(TripleConv2dRelu(256, 512))
-        self.downs.append(TripleConv2dRelu(128, 256))
-        self.downs.append(TripleConv2dRelu(64, 128))
-
-        self.bottleneck = TripleConv2dRelu(64, 64 * 2)
-
-        self.ups.append(
-            nn.ConvTranspose2d(
-                64 * 2,
-                64,
-                kernel_size=2,
-                stride=2
-            )
+        # Create the decoder
+        self.decoder = nn.Sequential(
+            reversed_layer3,
+            nn.ConvTranspose2d(512, 256, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            reversed_layer2,
+            nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            reversed_layer1,
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
         )
-        self.ups.append(TripleConv2dRelu(64 * 2, 64))
-        self.ups.append(
-            nn.ConvTranspose2d(
-                128 * 2,
-                128,
-                kernel_size=2,
-                stride=2
-            )
-        )
-        self.ups.append(TripleConv2dRelu(128 * 2, 128))
-        self.ups.append(
-            nn.ConvTranspose2d(
-                256 * 2,
-                256,
-                kernel_size=2,
-                stride=2
-            )
-        )
-        self.ups.append(TripleConv2dRelu(256 * 2, 256))
-        self.ups.append(
-            nn.ConvTranspose2d(
-                512 * 2,
-                512,
-                kernel_size=2,
-                stride=2
-            )
-        )
-        self.ups.append(TripleConv2dRelu(512 * 2, 512))
 
-        self.final_conv = nn.Conv2d(512, out_channels, kernel_size=1)
+        # Final output layer
+        self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
+
 
     def forward(self, x):
-        skip_connections = []
+        # Encoder
+        x1 = self.encoder(x)
 
-        for down in self.downs:
-            x = down(x)
-            skip_connections.append(x)
-            x = self.pool(x)
+        # Bridge
+        x2 = self.bridge(x1)
 
-        x = self.bottleneck(x)
+        # Decoder
+        x3 = self.decoder(x2)
 
-        skip_connections = skip_connections[::-1]
+        # Final output
+        output = self.final_conv(x3)
 
-        for idx in range(0, len(self.ups), 2):
-            x = self.ups[idx](x)
-            skip = skip_connections[idx // 2]
-
-            if x.shape != skip.shape:
-                x = TF.resize(x, size=skip.shape[2:])
-
-            concat_skip = torch.cat((skip, x), dim=1)
-            x = self.ups[idx + 1](concat_skip)
-
-        return self.final_conv(x)
-    
-    
+        return output
