@@ -184,7 +184,7 @@ class Train:
             # Forward
             predictions = model.forward(data)
 
-            loss = loss_fn(predictions, targets)
+            loss = lovasz_softmax(predictions, targets)
 
             # Backward
             optimizer.zero_grad()
@@ -194,7 +194,7 @@ class Train:
 
             if 'wnet' in self.model_type:
                 dec_predictions = model.forward(data, mode='dec')
-                loss_2 = lovasz_softmax(dec_predictions, targets)
+                loss_2 = loss_fn(dec_predictions, targets)
 
                 # Backward
                 optimizer.zero_grad()

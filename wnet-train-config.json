@@ -7,11 +7,11 @@
   "in_channels": 3,
   "out_channels": 2,
   "loss_type": "CE",
-  "model_type": "wnet_vggunet_unet",
+  "model_type": "wnet",
   "device": "cuda",
-  "gpu_index": 0,
+  "gpu_index": 1,
   "cont": false,
-  "input_img_dir": "D:/School Stuff/CSCI 199.2/pyunet/notebooks/images/ebhi-seg-polyp/images",
-  "input_mask_dir": "D:/School Stuff/CSCI 199.2/pyunet/notebooks/images/ebhi-seg-polyp/masks",
-  "model_file": "D:/School Stuff/CSCI 199.2/pyunet/models/wnet_vggunet_unet.pth"
+  "input_img_dir": "/home/researcher/Documents/fonso/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
+  "input_mask_dir": "/home/researcher/Documents/fonso/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+  "model_file": "/home/researcher/Documents/fonso/tarapopup-thesis/models/wnet_100.pth"
 }
