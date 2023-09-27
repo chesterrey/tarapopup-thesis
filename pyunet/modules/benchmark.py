@@ -15,6 +15,7 @@ import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from lib.utils import get_image, get_mask, get_predicted_img, dice_score, count_parameters, initialize_model, load_model_for_inference
+
 class Benchmark:
     def __init__(self, params={}):
         self.params = params
@@ -50,6 +51,8 @@ class Benchmark:
             'ave_precision':    [],
             'ave_recall':       [],
             'ave_jaccard':      [],
+            'ave_pred_time':    [],
+            'flops':            [],
             'elapsed_time':     []
         }
 
@@ -84,6 +87,8 @@ class Benchmark:
             ave_precision   = 0.0
             ave_recall      = 0.0
             ave_jaccard     = 0.0
+            ave_pred_time   = 0.0
+            flops           = 0.0
 
             start_time = time.time()
 
@@ -94,7 +99,9 @@ class Benchmark:
                 img  = get_image(image_file, dim)
                 mask = get_mask(mask_file, dim)
 
+                start_pred_time = time.time()
                 prediction = get_predicted_img(img, model, device=self.device)
+                end_pred_time = time.time()
 
                 mask_vectorized = mask.ravel().astype(int)
                 prediction_vectorized = prediction.ravel().astype(int)
@@ -110,6 +117,7 @@ class Benchmark:
                 ave_precision += precision
                 ave_recall += recall
                 ave_jaccard += jaccard
+                ave_pred_time += (end_pred_time - start_pred_time)
 
             end_time = time.time()
 
@@ -121,6 +129,9 @@ class Benchmark:
             ave_precision   = ave_precision / num_images
             ave_recall      = ave_recall / num_images
             ave_jaccard     = ave_jaccard / num_images
+            ave_pred_time   = ave_pred_time / num_images
+
+            flops = count_parameters(model) * self.img_height * self.img_width
 
             scores['model_type'].append(model_type)
             scores['num_params'].append(count_parameters(model))
@@ -129,6 +140,8 @@ class Benchmark:
             scores['ave_precision'].append(ave_precision)
             scores['ave_recall'].append(ave_recall)
             scores['ave_jaccard'].append(ave_jaccard)
+            scores['ave_pred_time'].append(ave_pred_time)
+            scores['flops'].append(flops)
             scores['elapsed_time'].append(elapsed_time)
 
         df_results = pd.DataFrame(scores)
