@@ -16,6 +16,8 @@ from lib.depth.unet_depth import UNetDepth
 from lib.depth.unet_attn_depth import UNetAttnDepth
 from lib.depth.unet_attn_dp_depth import UNetAttnDpDepth
 
+from lib.ternausnet import UNet16
+
 from lib.wnet.wnet import WNet
 from lib.vgg_unet import VGGUNet
 from lib.wnet.wnet_vggunet_unet import WNetVGGUNetUNet
@@ -99,6 +101,13 @@ def initialize_model(in_channels, out_channels, model_type, device):
         )
     elif model_type == 'unet_attn_dp_depth':
         model = UNetAttnDpDepth(
+            in_channels=in_channels,
+            out_channels=out_channels
+        )
+
+    # TernausNet
+    elif model_type == 'ternausnet':
+        model = UNet16(
             in_channels=in_channels,
             out_channels=out_channels
         )
