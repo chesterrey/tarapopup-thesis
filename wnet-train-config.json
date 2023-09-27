@@ -9,9 +9,9 @@
   "loss_type": "CE",
   "model_type": "wnet",
   "device": "cuda",
-  "gpu_index": 0,
+  "gpu_index": 1,
   "cont": false,
-  "input_img_dir": "/home/researcher/Documents/fonso/tarapopup-thesis/pyunet/notebooks/images/ebhi-seg-polyp/images",
-  "input_mask_dir": "/home/researcher/Documents/fonso/tarapopup-thesis/pyunet/notebooks/images/ebhi-seg-polyp/masks",
-  "model_file": "/home/researcher/Documents/fonso/tarapopup-thesis/pyunet/models/wnet_100.pth"
+  "input_img_dir": "/home/researcher/Documents/fonso/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
+  "input_mask_dir": "/home/researcher/Documents/fonso/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+  "model_file": "/home/researcher/Documents/fonso/tarapopup-thesis/models/wnet_100.pth"
 }
