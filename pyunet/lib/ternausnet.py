@@ -45,16 +45,12 @@ class DecoderBlock(nn.Module):
 
 
 class UNet11(nn.Module):
-    def __init__(self, num_filters: int = 32, pretrained: bool = False) -> None:
-        """
-
-        Args:
-            num_filters:
-            pretrained:
-                False - no pre-trained network is used
-                True  - encoder is pre-trained with VGG11
-        """
+    def __init__(self, in_channels=3, out_channels=1, num_filters=32, pretrained=False):
         super().__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.num_filters = num_filters
+
         self.pool = nn.MaxPool2d(2, 2)
 
         self.encoder = models.vgg11(pretrained=pretrained).features
@@ -86,9 +82,9 @@ class UNet11(nn.Module):
         )
         self.dec1 = ConvRelu(num_filters * (2 + 1), num_filters)
 
-        self.final = nn.Conv2d(num_filters, 1, kernel_size=1)
+        self.final = nn.Conv2d(num_filters, out_channels, kernel_size=1)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x):
         conv1 = self.relu(self.conv1(x))
         conv2 = self.relu(self.conv2(self.pool(conv1)))
         conv3s = self.relu(self.conv3s(self.pool(conv2)))

@@ -16,14 +16,15 @@ from lib.depth.unet_depth import UNetDepth
 from lib.depth.unet_attn_depth import UNetAttnDepth
 from lib.depth.unet_attn_dp_depth import UNetAttnDpDepth
 
-from lib.ternausnet import UNet16
+from lib.ternausnet import UNet16, UNet11
+
+from lib.resnet import UNetResNet
 
 from lib.wnet.wnet import WNet
 from lib.vgg_unet import VGGUNet
 from lib.wnet.wnet_vggunet_unet import WNetVGGUNetUNet
 from lib.wnet.wnet_unet_vggunet import WNetUNetVGGUNet
 from lib.wnet.wnet_vggunet_vggunet import WNetVGGUNetVGGUNet
-from lib.resnet_unet import ResNetUNet
 
 def rgb2mask(colors, image):
     rows, cols, _ = image.shape
@@ -107,7 +108,14 @@ def initialize_model(in_channels, out_channels, model_type, device):
 
     # TernausNet
     elif model_type == 'ternausnet':
-        model = UNet16(
+        model = UNet11(
+            in_channels=in_channels,
+            out_channels=out_channels
+        )
+
+    # ResNet Models
+    elif model_type == 'resnet_unet':
+        model = UNetResNet(
             in_channels=in_channels,
             out_channels=out_channels
         )
