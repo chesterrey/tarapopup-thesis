@@ -5,6 +5,8 @@ import datetime
 import os.path
 import sys
 import json
+import optuna
+from optuna.pruners import MedianPruner
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
 from modules.train import Train
@@ -43,7 +45,8 @@ mode_choices = [
     "extract-unique-gray",
     "assert-model",
     "rgb2mask",
-    "train-depth"
+    "train-depth",
+    "optimize-hyperparameters"
 ]
 
 model_type_choices = [
@@ -158,6 +161,53 @@ def main():
 
         cmd = Train(params=params)
         cmd.execute()
+    
+    elif mode == "optimize-hyperparameters":
+
+        # Define the hyperparameter search space for your U-Net model
+        def objective(trial):
+            params = {
+                'img_width': args.img_width,
+                'img_height': args.img_height,
+                'device': args.device,
+                'gpu_index': args.gpu_index,
+                'input_img_dir': args.input_img_dir,
+                'input_mask_dir': args.input_mask_dir,
+                'epochs': args.epochs,
+                'learning_rate': trial.suggest_loguniform('learning_rate', 1e-5, 1e-2),
+                'model_file': args.model_file,
+                'batch_size': args.batch_size,
+                'in_channels': args.in_channels,
+                'out_channels': args.out_channels,
+                'cont': args.cont,
+                'loss_type': args.loss_type,
+                'model_type': args.model_type,
+            }
+
+            if config_file:
+                with open(config_file) as json_file:
+                    params = json.load(json_file)
+
+            # Create a Train instance with the sampled hyperparameters
+            trainer = Train(params=params)
+
+            # Execute the training with the sampled hyperparameters
+            trainer.execute()
+
+            # Return the validation loss as the result of the objective function
+            return trainer.accuracies[-1]
+
+        # Create an Optuna study for hyperparameter optimization
+        study = optuna.create_study(direction='maximize', pruner='tpe')
+        study.optimize(objective, n_trials=10)  # You can adjust the number of trials
+
+        # Access the best hyperparameters and their corresponding accuracy
+        best_params = study.best_params
+        best_accuracy = study.best_value
+
+        print("Best Hyperparameters:")
+        print(best_params)
+        print(f"Best Accuracy: {best_accuracy:.4f}")
 
     elif mode == "train-depth":
         params = {
