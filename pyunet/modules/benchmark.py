@@ -31,6 +31,7 @@ class Benchmark:
         self.in_channels            = params.get('in_channels') or 3
         self.out_channels           = params.get('out_channels') or 3
         self.models                 = params.get('models') or []
+        self.accuracies             = []
 
     def execute(self):
         print("Mode: Benchmark")
@@ -111,6 +112,8 @@ class Benchmark:
                 precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
                 recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
                 jaccard     = jaccard_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro')
+
+                self.accuracies.append(accuracy)
 
                 ave_accuracy += accuracy
                 ave_f1 += f1

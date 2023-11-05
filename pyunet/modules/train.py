@@ -44,6 +44,7 @@ class Train:
         self.cont                   = params.get('cont') or False
         self.loss_type              = params.get('loss_type') or 'CE'
         self.model_type             = params.get('model_type') or 'unet'
+        self.hyperparameter_tuning  = params.get('hyperparameter_tuning') or False
 
         self.test_img_dir   = params.get('test_img_dir') or None
         self.test_mask_dir  = params.get('test_mask_dir') or None
@@ -212,14 +213,14 @@ class Train:
             ave_loss += loss.item()
             count += 1
 
-        # Compute the accuracies if test_img_dir and test_mask_dir are present
+        # Compute the accuracies if test_img_dir and test_mask_dir are present OR Hyperparameter Tuning is True
         ave_accuracy    = None
         ave_f1          = None
         ave_precision   = None
         ave_recall      = None
         ave_specificity = None
 
-        if test_img_dir is not None and test_mask_dir is not None:
+        if (test_img_dir is not None and test_mask_dir is not None) or self.params.get('hyperparameter_tuning'):
             test_images = sorted(glob.glob("{}/*".format(test_img_dir)))
             test_masks  = sorted(glob.glob("{}/*".format(test_mask_dir)))
 
