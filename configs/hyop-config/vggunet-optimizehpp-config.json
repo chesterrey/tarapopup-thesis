@@ -1,0 +1,25 @@
+{
+    "img_width": 224,
+    "img_height": 224,
+    "batch_size": 1,
+    "device": "cuda",
+    "gpu_index": 0,
+    "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/images",
+    "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/masks",
+    "test_img_dir":
+      "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/images",
+    "test_mask_dir":
+      "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/masks",
+    "epochs": 2,
+    "learning_rate": 0.001,
+    "in_channels": 3,
+    "out_channels": 2,
+    "cont": false,
+    "loss_type": "CE",
+    "model_type": "vgg_unet",
+    "hyperparameter_tuning": true,
+
+    
+    "model_file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/vgg_unet_tuned.pth"
+  }
+  
