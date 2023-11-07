@@ -143,23 +143,23 @@ class Train:
 
             print("Ave Loss: {}".format(ave_loss))
 
-            #if self.test_img_dir is not None and self.test_mask_dir is not None:
-            self.accuracies.append(ave_accuracy)
-            print("Ave Accuracy: {}".format(ave_accuracy))
+            if self.test_img_dir is not None and self.test_mask_dir is not None:
+                self.accuracies.append(ave_accuracy)
+                print("Ave Accuracy: {}".format(ave_accuracy))
 
-            self.f1s.append(ave_f1)
-            print("Ave F1: {}".format(ave_f1))
+                self.f1s.append(ave_f1)
+                print("Ave F1: {}".format(ave_f1))
 
-            self.precisions.append(ave_precision)
-            print("Ave Precision: {}".format(ave_precision))
+                self.precisions.append(ave_precision)
+                print("Ave Precision: {}".format(ave_precision))
 
-            self.recalls.append(ave_recall)
-            print("Ave Recall: {}".format(ave_recall))
+                self.recalls.append(ave_recall)
+                print("Ave Recall: {}".format(ave_recall))
 
-            self.specificities.append(ave_specificity)
-            print("Ave Specificity: {}".format(ave_specificity))
+                self.specificities.append(ave_specificity)
+                print("Ave Specificity: {}".format(ave_specificity))
 
-            # Save model after every epoch
+                # Save model after every epoch
             print("Saving model to {}...".format(self.model_file))
 
             state = {
@@ -220,57 +220,54 @@ class Train:
         ave_recall      = None
         ave_specificity = None
         
-        test_images = sorted(glob.glob("{}/*".format(self.test_img_dir)))
-        test_masks  = sorted(glob.glob("{}/*".format(self.test_mask_dir)))
-
         if (test_img_dir is not None and test_mask_dir is not None) or self.params.get('hyperparameter_tuning'):
             test_images = sorted(glob.glob("{}/*".format(test_img_dir)))
             test_masks  = sorted(glob.glob("{}/*".format(test_mask_dir)))
 
             dim = (self.img_width, self.img_height)
 
-        num_images = len(test_images)
+            num_images = len(test_images)
 
-        ave_accuracy    = 0.0
-        ave_f1          = 0.0
-        ave_precision   = 0.0
-        ave_recall      = 0.0
-        ave_specificity = 0.0
+            ave_accuracy    = 0.0
+            ave_f1          = 0.0
+            ave_precision   = 0.0
+            ave_recall      = 0.0
+            ave_specificity = 0.0
 
-        for i in range(num_images):
-            image_file  = test_images[i]
-            mask_file   = test_masks[i]
+            for i in range(num_images):
+                image_file  = test_images[i]
+                mask_file   = test_masks[i]
 
-            img  = get_image(image_file, dim)
-            mask = get_mask(mask_file, dim)
+                img  = get_image(image_file, dim)
+                mask = get_mask(mask_file, dim)
 
-            prediction = get_predicted_img(img, model, device=self.device)
+                prediction = get_predicted_img(img, model, device=self.device)
 
-            mask_vectorized = mask.ravel().astype(int)
-            prediction_vectorized = prediction.ravel().astype(int)
+                mask_vectorized = mask.ravel().astype(int)
+                prediction_vectorized = prediction.ravel().astype(int)
 
-            accuracy    = accuracy_score(mask_vectorized, prediction_vectorized)
-            f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-            precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
-            recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
-            specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro', zero_division=1)
+                accuracy    = accuracy_score(mask_vectorized, prediction_vectorized)
+                f1          = f1_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
+                precision   = precision_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1)
+                recall      = recall_score(mask_vectorized, prediction_vectorized, average='macro', zero_division=1) # sensitivity
+                specificity = recall_score(mask_vectorized, prediction_vectorized, labels=range(self.out_channels), average='macro', zero_division=1)
 
-            ave_accuracy += accuracy
-            ave_f1 += f1
-            ave_precision += precision
-            ave_recall += recall
-            ave_specificity += specificity
+                ave_accuracy += accuracy
+                ave_f1 += f1
+                ave_precision += precision
+                ave_recall += recall
+                ave_specificity += specificity
 
-        ave_accuracy    = ave_accuracy / num_images
-        ave_f1          = ave_f1 / num_images
-        ave_precision   = ave_precision / num_images
-        ave_recall      = ave_recall / num_images
-        ave_specificity = ave_specificity / num_images
+                ave_accuracy    = ave_accuracy / num_images
+                ave_f1          = ave_f1 / num_images
+                ave_precision   = ave_precision / num_images
+                ave_recall      = ave_recall / num_images
+                ave_specificity = ave_specificity / num_images
 
-        
-        ave_loss = ave_loss / count
+                
+                ave_loss = ave_loss / count
 
-        return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
+            return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
 
         
 
