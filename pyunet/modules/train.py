@@ -223,7 +223,11 @@ class Train:
         test_images = sorted(glob.glob("{}/*".format(self.test_img_dir)))
         test_masks  = sorted(glob.glob("{}/*".format(self.test_mask_dir)))
 
-        dim = (self.img_width, self.img_height)
+        if (test_img_dir is not None and test_mask_dir is not None) or self.params.get('hyperparameter_tuning'):
+            test_images = sorted(glob.glob("{}/*".format(test_img_dir)))
+            test_masks  = sorted(glob.glob("{}/*".format(test_mask_dir)))
+
+            dim = (self.img_width, self.img_height)
 
         num_images = len(test_images)
 
