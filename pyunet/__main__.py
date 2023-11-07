@@ -199,7 +199,7 @@ def main():
 
         # Create an Optuna study for hyperparameter optimization
         study = optuna.create_study(direction='maximize', pruner='tpe')
-        study.optimize(objective, n_trials=10)  # You can adjust the number of trials
+        study.optimize(objective, n_trials=3)  # You can adjust the number of trials
 
         # Access the best hyperparameters and their corresponding accuracy
         best_params = study.best_params
