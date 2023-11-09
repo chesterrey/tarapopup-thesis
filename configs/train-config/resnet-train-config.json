@@ -3,7 +3,7 @@
     "img_height": 128,
     "batch_size": 1,
     "epochs": 100,
-    "learning_rate": 0.003,
+    "learning_rate": 0.003326411925827902,
     "in_channels": 3,
     "out_channels": 2,
     "loss_type": "CE",

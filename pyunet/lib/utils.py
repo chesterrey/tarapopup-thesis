@@ -20,7 +20,7 @@ from lib.ternausnet import UNet16, UNet11
 
 from lib.resnet import UNetResNet
 
-from lib.double_unet import DoubleUNet
+from lib.double_unet import DoubleUnet
 
 from lib.wnet.wnet import WNet
 from lib.vgg_unet import VGGUNet
@@ -126,7 +126,7 @@ def initialize_model(in_channels, out_channels, model_type, device):
 
     # Double UNet
     elif model_type == 'double_unet':
-        model = DoubleUNet(
+        model = DoubleUnet(
             in_channels=in_channels,
             out_channels=out_channels
         )

@@ -10,7 +10,7 @@
       "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/images",
     "test_mask_dir":
       "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/masks",
-    "epochs": 2,
+    "epochs": 100,
     "learning_rate": 0.001,
     "in_channels": 3,
     "out_channels": 2,
