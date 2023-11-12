@@ -177,74 +177,41 @@ class Train:
 
         ave_loss = 0.0
         count = 0
-
-        # Check the model type
-        if 'double_unet' in self.model_type:
-            for batch_idx, (data, targets) in enumerate(loop):
-                data = data.float().to(device=self.device)
-                print(data.shape)
-                targets = targets.long().to(device=self.device)
-
-                # Forward
-                y1, y2 = model(data)
-
-                # Modify the loss computation according to your needs
-                # You can use different loss functions for y1 and y2, if necessary.
-                loss1 = loss_fn(y1, targets)
-                loss2 = loss_fn(y2, targets)
-
-                # Total loss (you can adjust this based on your requirements)
-                loss = loss1 + loss2
-
-                # Backward
-                optimizer.zero_grad()
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-
-                # Update tqdm
-                loop.set_postfix(loss=loss.item())
-
-                # Write to tensorboard
-
-                ave_loss += loss.item()
-                count += 1
-        else:
             # Normal training for other model types
-            for batch_idx, (data, targets) in enumerate(loop):
-                data = data.float().to(device=self.device)
-                targets = targets.long().to(device=self.device)
+        for batch_idx, (data, targets) in enumerate(loop):
+            data = data.float().to(device=self.device)
+            targets = targets.long().to(device=self.device)
 
-                # Forward
-                predictions = model.forward(data)
+            # Forward
+            predictions = model.forward(data)
 
-                loss = lovasz_softmax(predictions, targets)
+            loss = lovasz_softmax(predictions, targets)
+
+            # Backward
+            optimizer.zero_grad()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+
+            if 'wnet' in self.model_type:
+                dec_predictions = model.forward(data, mode='dec')
+                loss_2 = loss_fn(dec_predictions, targets)
 
                 # Backward
                 optimizer.zero_grad()
-                scaler.scale(loss).backward()
+                scaler.scale(loss_2).backward()
                 scaler.step(optimizer)
                 scaler.update()
 
-                if 'wnet' in self.model_type:
-                    dec_predictions = model.forward(data, mode='dec')
-                    loss_2 = loss_fn(dec_predictions, targets)
+                loss = loss + loss_2
 
-                    # Backward
-                    optimizer.zero_grad()
-                    scaler.scale(loss_2).backward()
-                    scaler.step(optimizer)
-                    scaler.update()
+            # Update tqdm
+            loop.set_postfix(loss=loss.item())
 
-                    loss = loss + loss_2
+            # Write to tensorboard
 
-                # Update tqdm
-                loop.set_postfix(loss=loss.item())
-
-                # Write to tensorboard
-
-                ave_loss += loss.item()
-                count += 1
+            ave_loss += loss.item()
+            count += 1
 
         # Compute the accuracies if test_img_dir and test_mask_dir are present OR Hyperparameter Tuning is True
         ave_accuracy    = None
@@ -321,9 +288,8 @@ class CustomDataset(Dataset):
     def __getitem__(self, index):
         img_path    = os.path.join(self.image_dir, self.images[index])
         mask_path   = os.path.join(self.mask_dir, self.images_masked[index])
-
+        
         img = cv2.imread(img_path)
-        print(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         original_img    = (cv2.resize(img, self.dim) / 255).transpose((2, 0, 1))
