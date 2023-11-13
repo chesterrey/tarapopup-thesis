@@ -23,6 +23,7 @@ from lib.loss_functions import dice_loss, tversky_loss, FocalLoss, sym_unified_f
 from lib.utils import get_image, get_mask, get_predicted_img, dice_score, initialize_model
 from lib.lovasz_losses import lovasz_softmax, lovasz_hinge
 class Train:
+
     def __init__(self, params={}, seed=0):
         if seed >= 0:
             torch.manual_seed(seed)
@@ -137,7 +138,6 @@ class Train:
                 test_img_dir=self.test_img_dir,
                 test_mask_dir=self.test_mask_dir
             )
-
             # write loss to tensorboard
             self.writer.add_scalar(f"Loss ({self.model_type}-{self.loss_type})", ave_loss, epoch+1)
 
@@ -159,7 +159,7 @@ class Train:
                 self.specificities.append(ave_specificity)
                 print("Ave Specificity: {}".format(ave_specificity))
 
-            # Save model after every epoch
+                # Save model after every epoch
             print("Saving model to {}...".format(self.model_file))
 
             state = {
@@ -219,7 +219,7 @@ class Train:
         ave_precision   = None
         ave_recall      = None
         ave_specificity = None
-
+        
         if (test_img_dir is not None and test_mask_dir is not None) or self.params.get('hyperparameter_tuning'):
             test_images = sorted(glob.glob("{}/*".format(test_img_dir)))
             test_masks  = sorted(glob.glob("{}/*".format(test_mask_dir)))
@@ -258,15 +258,16 @@ class Train:
                 ave_recall += recall
                 ave_specificity += specificity
 
-            ave_accuracy    = ave_accuracy / num_images
-            ave_f1          = ave_f1 / num_images
-            ave_precision   = ave_precision / num_images
-            ave_recall      = ave_recall / num_images
-            ave_specificity = ave_specificity / num_images
+                ave_accuracy    = ave_accuracy / num_images
+                ave_f1          = ave_f1 / num_images
+                ave_precision   = ave_precision / num_images
+                ave_recall      = ave_recall / num_images
+                ave_specificity = ave_specificity / num_images
 
-        ave_loss = ave_loss / count
+                
+                ave_loss = ave_loss / count
 
-        return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
+            return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
 
         
 
