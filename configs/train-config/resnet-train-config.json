@@ -1,0 +1,18 @@
+{
+    "img_width": 128,
+    "img_height": 128,
+    "batch_size": 1,
+    "epochs": 100,
+    "learning_rate": 0.003326411925827902,
+    "in_channels": 3,
+    "out_channels": 2,
+    "loss_type": "CE",
+    "model_type": "resnet_unet",
+    "device": "cuda",
+    "gpu_index": 0,
+    "cont": false,
+    "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
+    "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+    "model_file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/resnet_unet_101.pth"
+  }
+  

@@ -177,9 +177,9 @@ class Train:
 
         ave_loss = 0.0
         count = 0
-
+            # Normal training for other model types
         for batch_idx, (data, targets) in enumerate(loop):
-            data    = data.float().to(device=self.device)
+            data = data.float().to(device=self.device)
             targets = targets.long().to(device=self.device)
 
             # Forward
@@ -205,7 +205,7 @@ class Train:
 
                 loss = loss + loss_2
 
-            # update tqdm
+            # Update tqdm
             loop.set_postfix(loss=loss.item())
 
             # Write to tensorboard
@@ -289,7 +289,7 @@ class CustomDataset(Dataset):
     def __getitem__(self, index):
         img_path    = os.path.join(self.image_dir, self.images[index])
         mask_path   = os.path.join(self.mask_dir, self.images_masked[index])
-
+        
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 

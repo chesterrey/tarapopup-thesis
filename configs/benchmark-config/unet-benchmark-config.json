@@ -1,0 +1,18 @@
+
+
+{
+  "img_width": 128,
+  "img_height": 128,
+  "device": "cuda",
+  "gpu_index": 0,
+  "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
+  "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+  "models": [
+    {
+      "type": "unet",
+      "file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/unet_100.pth"
+    }
+  ],
+  "in_channels": 3,
+  "out_channels": 2
+}
