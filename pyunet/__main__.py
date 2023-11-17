@@ -263,6 +263,10 @@ def main():
             'model_type':       model_type
         }
 
+        if config_file:
+            with open(config_file) as json_file:
+                params = json.load(json_file)
+
         cmd = Monitor(params=params)
         cmd.execute()
 

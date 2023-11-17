@@ -172,10 +172,28 @@ python -m pyunet --mode generate-tiff --unique-values 62 113 137 155 176 194 --i
 
 ### Monitor from Camera
 
-Runs pyunet from camera feed.
+Runs from camera feed.
 
 ```
-python -m  pyunet --mode monitor --img-height 256 --img-width 256 --display-width 800 --display-height 640 --video 0 --model-file ./model.pth --model-type unet_attn_dp
+python -m pyunet --mode monitor --config-file filepath\config.json
+```
+
+Sample structure of config file:
+
+```
+{
+  "model_file": "D:/School Stuff/CSCI 199.2/pyunet/models/[FOSSILS]_ternausnet_optimized.pth",
+  "img_width": 512,
+  "img_height": 512,
+  "video" : 0,
+  "gpu_index": 0,
+  "device": "cuda",
+  "in_channels": 3,
+  "out_channels": 2,
+  "display_width": 512,
+  "display_height": 512,
+  "model_type": "ternausnet"
+}
 ```
 
 ### RGB 2 Mask Converter
