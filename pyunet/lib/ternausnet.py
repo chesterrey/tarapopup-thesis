@@ -94,6 +94,8 @@ class UNet11(nn.Module):
         conv5s = self.relu(self.conv5s(self.pool(conv4)))
         conv5 = self.relu(self.conv5(conv5s))
 
+        print(conv5.shape)
+
         center = self.center(self.pool(conv5))
 
         dec5 = self.dec5(torch.cat([center, conv5], 1))

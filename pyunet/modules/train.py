@@ -184,26 +184,31 @@ class Train:
 
             # Forward
             predictions = model.forward(data)
+            
+            #print(f"predection: {predictions[0].shape}")
+            #print(f"targerts: {targets.shape}")
 
-            loss = lovasz_softmax(predictions, targets)
+            if 'double_unet' in self.model_type:
+                
+                loss_1 = nn.BCELoss(predictions[0], targets)
 
-            # Backward
-            optimizer.zero_grad()
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-
-            if 'wnet' in self.model_type:
-                dec_predictions = model.forward(data, mode='dec')
-                loss_2 = loss_fn(dec_predictions, targets)
+                loss = loss_1 
 
                 # Backward
                 optimizer.zero_grad()
-                scaler.scale(loss_2).backward()
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss = lovasz_softmax(predictions, targets)
+
+                # Backward
+                optimizer.zero_grad()
+                scaler.scale(loss).backward()
                 scaler.step(optimizer)
                 scaler.update()
 
-                loss = loss + loss_2
+        
 
             # Update tqdm
             loop.set_postfix(loss=loss.item())
