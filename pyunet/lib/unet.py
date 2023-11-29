@@ -73,6 +73,7 @@ class UNet(nn.Module):
         self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
 
     def forward(self, x):
+        
         skip_connections = []
 
         for down in self.downs:
@@ -87,7 +88,6 @@ class UNet(nn.Module):
 
         for idx in range(0, len(self.ups), 2):
             x = self.ups[idx](x)
-            #print(x.shape[-1])
             skip_connection = skip_connections[idx//2]
 
             if x.shape != skip_connection.shape:

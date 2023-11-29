@@ -202,7 +202,7 @@ class decoder2(nn.Module):
         return x
 
 class DoubleUnet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=1):
+    def __init__(self, in_channels, out_channels):
         super().__init__()
 
         self.e1 = encoder1()
@@ -218,10 +218,17 @@ class DoubleUnet(nn.Module):
 
     def forward(self, x):
         x0 = x
+        print(x0.shape)
         x, skip1 = self.e1(x)
         x = self.a1(x)
         x = self.d1(x, skip1)
+        
+        
         y1 = self.y1(x)
+
+        print(y1)
+        
+
 
         input_x = x0 * self.sigmoid(y1)
         x, skip2 = self.e2(input_x)
@@ -231,9 +238,3 @@ class DoubleUnet(nn.Module):
 
 
         return y1, y2
-    
-if __name__ == "__main__":
-    x = torch.randn((1, 3, 128, 128))
-    model = DoubleUnet()
-    y1, y2 = model(x)
-    print(y1.shape, y2.shape)

@@ -68,4 +68,4 @@ train.sh
 *.bat
 
 chester/
-configs/
+configs/*
