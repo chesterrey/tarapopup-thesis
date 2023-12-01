@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms.functional as TF
+from torch.nn import functional as F
 import glob
 from sklearn.metrics import jaccard_score
 from sklearn.metrics import accuracy_score
@@ -185,12 +186,10 @@ class Train:
             # Forward
             predictions = model.forward(data)
             
-            #print(f"predection: {predictions[0].shape}")
-            #print(f"targerts: {targets.shape}")
 
             if 'double_unet' in self.model_type:
                 
-                loss_1 = nn.BCELoss(predictions[0], targets)
+                loss_1 = lovasz_softmax(predictions, targets)
 
                 loss = loss_1 
 
@@ -272,7 +271,7 @@ class Train:
                 
                 ave_loss = ave_loss / count
 
-            return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
+        return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
 
         
 

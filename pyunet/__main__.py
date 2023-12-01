@@ -64,7 +64,8 @@ model_type_choices = [
     "wnet_vggunet_vgg",
     "wnet_vggunet_vggunet",
     "wnet_vggunet_unet",
-    "wnet_unet_vggunet"
+    "wnet_unet_vggunet",
+    "double_unet",
 ]
 
 default_dataset_name = (datetime.datetime.now()).strftime("%Y%m%d%H%M%S")

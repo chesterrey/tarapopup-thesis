@@ -125,4 +125,7 @@ class SamplePair:
         # Adjust the spacing between subplots
         plt.subplots_adjust(wspace=0.2)
 
+        #print result min and max
+        print(f"result min: {np.min(result)}")
+        print(f"result max: {np.max(result)}")
         plt.show()

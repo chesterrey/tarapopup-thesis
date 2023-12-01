@@ -214,7 +214,7 @@ class DoubleUnet(nn.Module):
         self.e2 = encoder2()
         self.a2 = ASPP(256, 64)
         self.d2 = decoder2()
-        self.y2 = nn.Conv2d(32, 1, kernel_size=1, padding=0)
+        self.y2 = nn.Conv2d(32, out_channels, kernel_size=1, padding=0)
 
     def forward(self, x):
         x0 = x
@@ -226,7 +226,7 @@ class DoubleUnet(nn.Module):
         
         y1 = self.y1(x)
 
-        print(y1)
+        # print(y1)
         
 
 
@@ -237,4 +237,4 @@ class DoubleUnet(nn.Module):
         y2 = self.y2(x)
 
 
-        return y1, y2
+        return y2

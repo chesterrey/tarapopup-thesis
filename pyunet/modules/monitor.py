@@ -86,7 +86,9 @@ class Monitor:
                 rows, cols, _   = frame.shape
                 original_dim    = (cols, rows)
 
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                original_frame = frame
+                original_frame = cv2.resize(original_frame, self.dim)
+                frame = cv2.cvtColor(original_frame, cv2.COLOR_BGR2RGB)
 
                 image = cv2.resize(frame, self.dim) / 255
                 image = image.transpose((2, 0, 1))
@@ -122,6 +124,8 @@ class Monitor:
                 cv2.drawContours(result_mask_overlay, contours, -1, (0, 255, 0), 3)
 
                 cv2.imshow("Result", result_mask_overlay)
+                cv2.imshow("Image", original_frame)
+
 
                 new_frame_time = time.time()
 
