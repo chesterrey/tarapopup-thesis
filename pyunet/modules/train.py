@@ -77,6 +77,7 @@ class Train:
             self.model_type,
             self.device
         )
+        print("Model Type: {}".format(self.model_type))
 
         print(self.model)
 
@@ -198,6 +199,7 @@ class Train:
                 scaler.scale(loss).backward()
                 scaler.step(optimizer)
                 scaler.update()
+                torch.cuda.empty_cache()
             else:
                 loss = lovasz_softmax(predictions, targets)
 
@@ -216,6 +218,7 @@ class Train:
 
             ave_loss += loss.item()
             count += 1
+            torch.cuda.empty_cache()
 
         # Compute the accuracies if test_img_dir and test_mask_dir are present OR Hyperparameter Tuning is True
         ave_accuracy    = None
@@ -271,6 +274,7 @@ class Train:
                 
                 ave_loss = ave_loss / count
 
+        ave_loss = ave_loss / count
         return ave_loss, ave_accuracy, ave_f1, ave_precision, ave_recall, ave_specificity
 
         

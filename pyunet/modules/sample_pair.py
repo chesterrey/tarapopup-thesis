@@ -55,7 +55,7 @@ class SamplePair:
         print(img_path)
         print(mask_path)
 
-        img_for_plot = cv2.imread(img_path, 1)
+        img_for_plot = cv2.imread(img_path)
         img_for_plot = cv2.cvtColor(img_for_plot, cv2.COLOR_BGR2RGB)
 
         mask_for_plot = cv2.imread(mask_path, 0)
@@ -121,11 +121,11 @@ class SamplePair:
             axes[curr_index].imshow(result)
             axes[curr_index].set_title(model_type)
             axes[curr_index].axis('off')
+            print(f"result min: {np.min(result)}")
+            print(f"result max: {np.max(result)}")
 
         # Adjust the spacing between subplots
         plt.subplots_adjust(wspace=0.2)
 
         #print result min and max
-        print(f"result min: {np.min(result)}")
-        print(f"result max: {np.max(result)}")
         plt.show()

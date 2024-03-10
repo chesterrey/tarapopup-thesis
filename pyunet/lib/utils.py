@@ -55,14 +55,43 @@ def load_model_for_inference(in_channels, out_channels, model_type, device, stat
 
     model.load_state_dict(state_dict)
 
-    model.eval()
+    # model.eval()
 
     return model
 
 def initialize_model(in_channels, out_channels, model_type, device):
     model = None
 
-    if model_type == 'unet':
+    if model_type.startswith('double_unet['):
+        encoder_params = model_type.split('[')[1].split(']')[0]
+        encoder_params = encoder_params.split('+')
+
+        encoders = [
+            (
+                encoder_params[0],
+                initialize_model(
+                in_channels=in_channels,
+                out_channels=1,
+                model_type=encoder_params[0],
+                device=device
+            )),
+            (
+                encoder_params[1],
+                initialize_model(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                model_type=encoder_params[1],
+                device=device
+            )),
+        ]
+
+        model = DoubleUnet(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            encoders=encoders
+        )
+
+    elif model_type == 'unet':
         model = UNet(
             in_channels=in_channels,
             out_channels=out_channels
@@ -124,11 +153,10 @@ def initialize_model(in_channels, out_channels, model_type, device):
             out_channels=out_channels
         )
 
-    # Double UNet
     elif model_type == 'double_unet':
         model = DoubleUnet(
             in_channels=in_channels,
-            out_channels=out_channels
+            out_channels=out_channels,
         )
 
     # WNet Models

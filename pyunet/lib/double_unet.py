@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import vgg19
+from ternausnet import UNet16 as TernausNet
+from unet import UNet
+from alexnet_unet import AlexNet
 
 class Conv2D(nn.Module):
     def __init__(self, in_c, out_c, kernel_size=3, padding=1, dilation=1, bias=False, act=True):
@@ -202,39 +205,60 @@ class decoder2(nn.Module):
         return x
 
 class DoubleUnet(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, encoders=None):
+
         super().__init__()
 
-        self.e1 = encoder1()
-        self.a1 = ASPP(512, 64)
-        self.d1 = decoder1()
-        self.y1 = nn.Conv2d(32, 1, kernel_size=1, padding=0)
-        self.sigmoid = nn.Sigmoid()
+        self.encoders = encoders
 
-        self.e2 = encoder2()
-        self.a2 = ASPP(256, 64)
-        self.d2 = decoder2()
-        self.y2 = nn.Conv2d(32, out_channels, kernel_size=1, padding=0)
+        if self.encoders is not None:
+            print("Encoder 1: ", encoders[0][0])
+            print("Encoder 2: ", encoders[1][0])
+
+            self.sigmoid = nn.Sigmoid()
+            self.encoder1 = encoders[0][1]
+            self.encoder2 = encoders[1][1]
+        
+        else:
+            self.e1 = encoder1()
+            self.a1 = ASPP(512, 64)
+            self.d1 = decoder1()
+            self.y1 = nn.Conv2d(32, 1, kernel_size=1, padding=0)
+            self.sigmoid = nn.Sigmoid()
+
+            self.e2 = encoder2()
+            self.a2 = ASPP(256, 64)
+            self.d2 = decoder2()
+            self.y2 = nn.Conv2d(32, out_channels, kernel_size=1, padding=0)
+
 
     def forward(self, x):
-        x0 = x
-        print(x0.shape)
-        x, skip1 = self.e1(x)
-        x = self.a1(x)
-        x = self.d1(x, skip1)
-        
-        
-        y1 = self.y1(x)
+        torch.cuda.empty_cache()
 
-        # print(y1)
-        
+        if self.encoders is not None:
+            x0 = x
+            y1 = self.encoder1(x)
+            input_x = x0 * self.sigmoid(y1)
+            y2 = self.encoder2(input_x)
+
+        else:
+            x0 = x
+            x, skip1 = self.e1(x)
+            x = self.a1(x)
+            x = self.d1(x, skip1)
+            
+            
+            y1 = self.y1(x)
+
+            # print(y1)
+            
 
 
-        input_x = x0 * self.sigmoid(y1)
-        x, skip2 = self.e2(input_x)
-        x = self.a2(x)
-        x = self.d2(x, skip1, skip2)
-        y2 = self.y2(x)
+            input_x = x0 * self.sigmoid(y1)
+            x, skip2 = self.e2(input_x)
+            x = self.a2(x)
+            x = self.d2(x, skip1, skip2)
+            y2 = self.y2(x)
 
 
         return y2

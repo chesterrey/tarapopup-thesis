@@ -196,6 +196,32 @@ Sample structure of config file:
 }
 ```
 
+### Custom Double UNet Configuration
+
+Sample structure of config file:
+
+```model_type: double_unet[encoder1+encoder2]```
+
+```
+{
+  "img_width": 128,
+  "img_height": 128,
+  "batch_size": 2,
+  "epochs": 100,
+  "learning_rate": 0.0001,
+  "in_channels": 3,
+  "out_channels": 2,
+  "loss_type": "CE",
+  "model_type": "double_unet[ternausnet+alexnet_unet]",
+  "device": "cuda",
+  "gpu_index": 0,
+  "cont": false,
+  "input_img_dir": "tmp/train/images",
+  "input_mask_dir": "tmp/train/masks",
+  "model_file": "tmp/unet.pth"
+}
+```
+
 ### RGB 2 Mask Converter
 
 Translates an RGB image to its mask version for training.
