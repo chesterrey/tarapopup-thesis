@@ -1,9 +1,9 @@
 {
-    "img_width": 512,
-    "img_height": 512,
+    "img_width": 224,
+    "img_height": 224,
     "batch_size": 1,
-    "epochs": 95,
-    "learning_rate": 0.001,
+    "epochs": 57,
+    "learning_rate": 1.288229180150205e-05,
     "in_channels": 3,
     "out_channels": 2,
     "loss_type": "CE",
@@ -13,6 +13,8 @@
     "cont": true,
     "input_img_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
     "input_mask_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
-    "model_file": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/models/vgg_unet0.001.pth"
+    "test_img_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
+    "test_mask_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+    "model_file": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/models/vgg_unet_optimized.pth"
   }
   

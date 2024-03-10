@@ -4,17 +4,17 @@
     "batch_size": 1,
     "device": "cuda",
     "gpu_index": 0,
-    "input_img_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/images",
-    "input_mask_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/tuning-ebhi-seg-polyp/masks",
-    "epochs": 1,
+    "input_img_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/shells-hyop/images",
+    "input_mask_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/shells-hyop/masks",
+    "test_img_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/shells-hyop/images",
+    "test_mask_dir": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/notebooks/images/shells-hyop/masks",
+    "epochs": 100,
     "learning_rate": 0.001,
     "in_channels": 3,
     "out_channels": 2,
     "cont": false,
     "loss_type": "CE",
     "model_type": "vgg_unet",
-
-    
-    "model_file": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/models/vgg2_tuned.pth"
+    "model_file": "C:/Users/Andre/OneDrive - ateneo.edu/Documents/vscode_projects/tarapopup-thesis/models/vgg-shells-tuned.pth"
   }
   

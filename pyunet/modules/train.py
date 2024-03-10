@@ -199,6 +199,13 @@ class Train:
 
                 loss_1 = loss_fn(predictions, targets)
 
+                # loss_fn = nn.BCEWithLogitsLoss()
+
+                # targets = F.one_hot(targets, num_classes=predictions.size(1))  # Convert to one-hot encoding
+                # targets = targets.permute(0, 3, 1, 2).float()  # Rearrange dimensions to match predictions
+
+                # loss_1 = loss_fn(predictions, targets)
+
                 loss = loss_1 
 
                 # Backward
@@ -208,8 +215,12 @@ class Train:
                 scaler.update()
                 torch.cuda.empty_cache()
             else:
-                loss = nn.CrossEntropyLoss() 
-                loss = loss(predictions, targets)
+                loss_fn = nn.BCEWithLogitsLoss()
+
+                targets = F.one_hot(targets, num_classes=predictions.size(1))  # Convert to one-hot encoding
+                targets = targets.permute(0, 3, 1, 2).float()  # Rearrange dimensions to match predictions
+                # loss = lovasz_softmax(predictions, targets)
+                loss = loss_fn(predictions, targets)
 
                 # Backward
                 optimizer.zero_grad()
