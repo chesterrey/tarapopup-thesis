@@ -63,7 +63,7 @@ class DecoderBlockV2(nn.Module):
 
 
 class UNetResNet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=1, encoder_depth=101, num_filters=32, dropout_2d=0.2,
+    def __init__(self, in_channels=3, out_channels=1, encoder_depth=34, num_filters=32, dropout_2d=0.2,
                  pretrained=True, is_deconv=False):
         super().__init__()
         self.in_channels = in_channels

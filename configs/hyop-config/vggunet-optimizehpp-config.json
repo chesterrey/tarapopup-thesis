@@ -4,12 +4,12 @@
     "batch_size": 1,
     "device": "cuda",
     "gpu_index": 0,
-    "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/fossils-hyop/images",
-    "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/fossils-hyop/mask",
+    "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks-hyop/images",
+    "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks-hyop/masks",
     "test_img_dir":
-    "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/fossils-hyop/images",
+    "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks-hyop/images",
   "test_mask_dir":
-    "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/fossils-hyop/mask",
+    "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks-hyop/masks",
     "epochs": 100,
     "learning_rate": 0.001,
     "in_channels": 3,

@@ -190,7 +190,14 @@ class Train:
 
             if 'double_unet' in self.model_type:
                 
-                loss_1 = lovasz_softmax(predictions, targets)
+                #loss_1 = lovasz_softmax(predictions, targets)
+
+                loss_fn = nn.BCEWithLogitsLoss()
+
+                targets = F.one_hot(targets, num_classes=predictions.size(1))  # Convert to one-hot encoding
+                targets = targets.permute(0, 3, 1, 2).float()  # Rearrange dimensions to match predictions
+
+                loss_1 = loss_fn(predictions, targets)
 
                 loss = loss_1 
 
@@ -201,7 +208,8 @@ class Train:
                 scaler.update()
                 torch.cuda.empty_cache()
             else:
-                loss = lovasz_softmax(predictions, targets)
+                loss = nn.CrossEntropyLoss() 
+                loss = loss(predictions, targets)
 
                 # Backward
                 optimizer.zero_grad()

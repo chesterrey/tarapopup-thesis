@@ -3,7 +3,7 @@
     "img_height": 128,
     "batch_size": 1,
     "epochs": 100,
-    "learning_rate": 0.003,
+    "learning_rate": 0.0002713134051,
     "in_channels": 3,
     "out_channels": 2,
     "loss_type": "CE",
@@ -11,8 +11,8 @@
     "device": "cuda",
     "gpu_index": 0,
     "cont": false,
-    "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
-    "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
-    "model_file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/ternausnet.pth"
+    "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks/images",
+    "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks/masks",
+    "model_file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/[ROCKS]noCEhyop_ternausnet.pth"
   }
   

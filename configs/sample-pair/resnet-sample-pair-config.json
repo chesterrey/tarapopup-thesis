@@ -1,12 +1,12 @@
 {
   "img_width": 128,
   "img_height": 128,
-  "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
-  "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+  "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/shells/images",
+  "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/shells/masks",
   "models": [
     {
       "type": "resnet_unet",
-      "file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/resnet_unet_101.pth"
+      "file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/[SHELLS]resnet_real_optimized.pth"
     }
   ],
   "device": "cuda",

@@ -5,12 +5,12 @@
   "img_height": 128,
   "device": "cuda",
   "gpu_index": 0,
-  "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/images",
-  "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/ebhi-seg-polyp/masks",
+  "input_img_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks/images",
+  "input_mask_dir": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/notebooks/images/rocks/masks",
   "models": [
     {
       "type": "unet",
-      "file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/unet_100.pth"
+      "file": "C:/Users/rolda/Desktop/thesis/tarapopup-thesis/models/[ROCKS]unet_lessim.pth"
     }
   ],
   "in_channels": 3,
